@@ -1,0 +1,33 @@
+<html>
+<body>
+<audio id="audio" autoplay="autoplay"></audio>
+<script type="text/javascript">
+//各ブラウザで異なる部分を統一
+navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+window.URL = window.URL || window.webkitURL || window.mozURL || window.msURL;
+window.AudioContext = window.AudioContext || window.webkitAudioContext || window.mozAudioContext || window.msAudioContext;
+
+function initialize() {
+
+	var audioElement = document.getElementById("audio");
+
+	navigator.getUserMedia(
+		{audio : true},
+		function(stream) {
+
+			var url = URL.createObjectURL(stream);
+			audioElement.src = url;
+			var audioContext = new AudioContext();
+			var mediastreamsource = audioContext.createMediaStreamSource(stream);
+			var analyser = audioContext.createAnalyser();
+			mediastreamsource.connect(analyser);
+		},
+		function(e) {
+			console.log(e);
+		}
+	);
+}
+window.addEventListener("load", initialize, false);
+</script>
+</body>
+</html>
