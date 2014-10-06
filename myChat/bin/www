@@ -1,0 +1,36 @@
+#!/usr/bin/env node
+var debug = require('debug')('myChat');
+var app = require('../app');
+
+app.set('port', process.env.PORT || 3000);
+
+var server = app.listen(app.get('port'), function() {
+  debug('Express server listening on port ' + server.address().port);
+});
+
+// add start
+var socketIO = require('socket.io');
+// クライアントの接続を待つ(IPアドレスとポート番号を結びつけます)
+var io = socketIO.listen(server);
+
+// クライアントが接続してきたときの処理
+io.sockets.on('connection', function(socket) {
+  console.log('connected\n'+'IP Addr:'+socket.handshake.address+'\n'+'Time:'+socket.handshake.time+'\n');
+  // メッセージを受けたときの処理
+  socket.on('publish', function(data) {
+    // つながっているクライアント全員に送信
+    console.log('published:'+data.value);
+    io.sockets.emit('publish', { value: data.value });
+  });
+
+  socket.on('voice', function(data) {
+    // つながっているクライアント全員に送信
+    console.log('voice');
+    io.sockets.emit('voice', { buffer: data });
+  });
+
+  // クライアントが切断したときの処理
+  socket.on('disconnect', function(){
+    console.log('disconnected\n'+'IP Addr:'+socket.handshake.address+'\n'+'Time:'+socket.handshake.time+'\n');
+  });
+});

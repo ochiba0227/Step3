@@ -1,0 +1,9 @@
+﻿extends layout
+
+block content
+  input#msg_input(type='text', style='width:200px;')
+  button(onclick='publishMessage();') 語る
+  #msg
+  script(src='/socket.io/socket.io.js')
+  script(src='javascripts/io.js')
+  script(src='javascripts/voice.js')
