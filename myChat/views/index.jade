@@ -3,6 +3,7 @@
 block content
   input#msg_input(type='text', style='width:200px;')
   button(onclick='publishMessage();') 語る
+  button(onclick='sendOffer();') ソケット結合
   #msg
   script(src='/socket.io/socket.io.js')
   script(src='javascripts/io.js')

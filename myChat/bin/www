@@ -24,11 +24,28 @@ io.sockets.on('connection', function(socket) {
     io.sockets.emit('publish', { value: data.value });
   });
 
-  socket.on('voice', function(data) {
-    // つながっているクライアント全員に送信
-    console.log('voice');
+  socket.on('offer', function(data) {
+    // 自分以外のクライアントに送信
+    console.log('offer');
     console.log(data);
-    io.sockets.emit('voice', data);
+    //io.sockets.emit('offer', data);
+    socket.broadcast.emit('offer', data);
+  });
+
+  socket.on('answer', function(data) {
+    // 自分以外のクライアントに送信
+    console.log('answer');
+    console.log(data);
+    //io.sockets.emit('answer', data);
+    socket.broadcast.emit('answer', data);
+  });
+
+  socket.on('icecandy', function(data) {
+    // 自分以外のクライアントに送信
+    console.log('icecandy');
+    console.log(data);
+    //io.sockets.emit('icecandy', data);
+    socket.broadcast.emit('icecandy', data);
   });
 
   // クライアントが切断したときの処理

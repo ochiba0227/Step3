@@ -2,7 +2,9 @@
 var socketio = io.connect('http://'+location.host);
 socketio.on('connected', function(name) {});
 socketio.on('publish', function (data) { addMessage(data.value); });
-socketio.on('voice', function (data) { playSound(data); });
+socketio.on('offer', function (offer) { offerReceived(offer); });
+socketio.on('answer', function (answer) { answerReceived(answer); });
+socketio.on('icecandy',function (message){iceCandidateReceived(message);});
 socketio.on('disconnect', function () {});
 
 // 2.イベントに絡ませる関数の定義
