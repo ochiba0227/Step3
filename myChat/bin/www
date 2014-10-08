@@ -16,6 +16,7 @@ var io = socketIO.listen(server);
 // クライアントが接続してきたときの処理
 io.sockets.on('connection', function(socket) {
   console.log('connected\n'+'IP Addr:'+socket.handshake.address+'\n'+'Time:'+socket.handshake.time+'\n');
+
   // メッセージを受けたときの処理
   socket.on('publish', function(data) {
     // つながっているクライアント全員に送信
@@ -26,7 +27,8 @@ io.sockets.on('connection', function(socket) {
   socket.on('voice', function(data) {
     // つながっているクライアント全員に送信
     console.log('voice');
-    io.sockets.emit('voice', { buffer: data });
+    console.log(data);
+    io.sockets.emit('voice', data);
   });
 
   // クライアントが切断したときの処理
