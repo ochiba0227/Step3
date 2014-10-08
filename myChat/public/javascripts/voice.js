@@ -2,8 +2,11 @@
 navigator.getMedia = ( navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia );
 window.AudioContext = window.AudioContext || window.webkitAudioContext || window.mozAudioContext || window.msAudioContext;
 window.URL = window.URL || window.webkitURL;
-var PeerConnection = window.RTCPeerConnection || window.webkitRTCPeerConnection || window.mozRTCPeerConnection;
-window.RTCPeerConnection = PeerConnection;
+var peerConnection = window.RTCPeerConnection || window.webkitRTCPeerConnection || window.mozRTCPeerConnection;
+window.RTCPeerConnection = peerConnection;
+
+window.RTCSessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription;
+window.RTCIceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate;
 
 //端末のビデオ、音声ストリームを取得
 var context = new AudioContext();
@@ -12,18 +15,8 @@ var localMediaStream;
 //リモートのメディアストリーム
 var mediaStreamSource;
 
-//送信用のチャンネル
-var sendChannel;
-
-//チャンネルを使う設定
-var peerDataConnectionConfig = {
-    "optional" : [
-        { "RtpDataChannels" : true }
-    ]
-};
-
 //自身のピアを作成
-var peer = new PeerConnection({iceServers: [{url: "stun:stun.l.google.com:19302"}]});
+var peer = new peerConnection({iceServers: [{url: "stun:stun.l.google.com:19302"}]});
 console.log(peer);
 
 navigator.getMedia ({audio:true }, function(stream) {
@@ -32,7 +25,6 @@ navigator.getMedia ({audio:true }, function(stream) {
   //自身のスピーカーに接続
   //mediaStreamSource.connect(context.destination);
 //socketio.emit('voice',stream);
-console.log(stream);
   //streamをグローバル変数に
   localMediaStream=stream;
   //自身のストリームをP2Pコネクションに追加
@@ -58,6 +50,7 @@ console.log(stream);
   peer.onaddstream=function(stream){
 console.log('onaddstream');
 console.log(stream.stream);
+//remotestreamをconnectすることができない←chromeのバグ
 //    var mediaStreamSource = context.createMediaStreamSource(stream.stream);
 //    mediaStreamSource.connect(context.destination);
 //audioelementを作ってそこにストリームを投げる場合は再生される
