@@ -9,87 +9,106 @@ window.RTCSessionDescription = window.RTCSessionDescription || window.mozRTCSess
 window.RTCIceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate;
 
 //端末のビデオ、音声ストリームを取得
-var context = new AudioContext();
+//var context = new AudioContext();
 var localMediaStream;
 
-//リモートのメディアストリーム
-var mediaStreamSource;
+//ピアを作成
+var peer = new Array();
 
-//自身のピアを作成
-var peer = new peerConnection({iceServers: [{url: "stun:stun.l.google.com:19302"}]});
-console.log(peer);
+//他ユーザの音声
+var audio_elem = new Array();
 
 navigator.getMedia ({audio:true }, function(stream) {
-  //入力ソースの作成(マイクからの入力)
-  //var mediaStreamSource = context.createMediaStreamSource(stream);
-  //自身のスピーカーに接続
-  //mediaStreamSource.connect(context.destination);
-//socketio.emit('voice',stream);
   //streamをグローバル変数に
   localMediaStream=stream;
-  //自身のストリームをP2Pコネクションに追加
-  peer.addStream(localMediaStream);
-  //sendChannel = peer.createDataChannel("sendDataChannel", {reliable: false});
 }, function(err){ //エラー処理
   console.log('getmedia error!!');
 });
 
-//------ここはoncreateに入れる予定--------
+function callMe(){
+  socketio.emit('callme',{ room: currentRoom });
+}
+
+function sendOffer(id){
+  //ピアの設定
+  setPeerData(id);
+
+  peer[id].createOffer(function(desc) {
+console.log('offer');
+console.log(desc);
+console.log(id);
+console.log(peer);
+    peer[id].setLocalDescription(desc);
+    socketio.emit('offer',{ room: currentRoom, desc: desc, id:id });
+  }, function(){console.log('error:createOffer');});
+}
+
+function offerReceived(offer) {
+console.log('offerrec');
+console.log(offer.id);
+  //ピアの設定
+  setPeerData(offer.id);
+
+  //offer.idが示すピアにoffer.deskを設定
+  peer[offer.id].setRemoteDescription(new RTCSessionDescription(offer.desc));
+
+  peer[offer.id].createAnswer(function(answer) {
+console.log('createAns');
+console.log(answer);
+      peer[offer.id].setLocalDescription(answer);
+      socketio.emit('answer',{ room: currentRoom, answer: answer, id:offer.id });
+  }, function(){console.log('error:createAns');});
+}
+ 
+function answerReceived(answer) {
+console.log('ansrcv');
+console.log(answer.id);
+console.log(new RTCSessionDescription(answer.desc));
+  peer[answer.id].setRemoteDescription(new RTCSessionDescription(answer.desc));
+console.log(peer[answer.id]);
+}
+
+function iceCandidateReceived(message) {
+  // オブジェクトをicecandidate型に変換
+  var candidate = new RTCIceCandidate(message.icecandy);
+console.log('iceCandidateReceived');
+console.log(peer);
+console.log(message.id);
+  peer[message.id].addIceCandidate(candidate);
+}
+
+function error(){
+  console.log('error');
+}
+
+function setPeerData(id){
+  // ピアの作成
+  peer[id] = new peerConnection({iceServers: [{url: "stun:stun.l.google.com:19302"}]});
+  //自身のストリームをP2Pコネクションに追加
+  if(localMediaStream!=null){
+    peer[id].addStream(localMediaStream);
+  }
   //自身のストリームの送信
-  peer.onicecandidate = function(evt) {
+  peer[id].onicecandidate = function(evt) {
       if (evt.candidate) {
-          socketio.emit('icecandy',{ room: currentRoom, icecandy: new RTCIceCandidate(evt.candidate)});
+          socketio.emit('icecandy',{ room: currentRoom, icecandy: new RTCIceCandidate(evt.candidate), id:id});
       } else {
           console.log('onicecandidate with no candidate');
           console.log(evt);
       }
   }
-  //ストリームの準備ができたとき
-  peer.onaddstream=function(stream){
+
+  //他ユーザのストリームの準備ができたとき
+  peer[id].onaddstream=function(stream){
 console.log('onaddstream');
 console.log(stream.stream);
 //remotestreamをconnectすることができない←chromeのバグ
 //    var mediaStreamSource = context.createMediaStreamSource(stream.stream);
 //    mediaStreamSource.connect(context.destination);
 //audioelementを作ってそこにストリームを投げる場合は再生される
-    var audio_elem = document.createElement("audio");
-    audio_elem.src = URL.createObjectURL(stream.stream);
-    audio_elem.play();
+    audio_elem[id] = document.createElement("audio");
+    audio_elem[id].src = URL.createObjectURL(stream.stream);
+    audio_elem[id].play();
+console.log(audio_elem);
   }
-//--------------
-
-function sendOffer(){
-  peer.createOffer(function(desc) {
-console.log('offer');
-console.log(desc);
-    peer.setLocalDescription(desc);
-    socketio.emit('offer',{ room: currentRoom, desc: desc });
-  }, error);
-}
-
-function offerReceived(offer) {
-    peer.setRemoteDescription(new RTCSessionDescription(offer));
-    peer.createAnswer(function(answer) {
-console.log('createAns');
-console.log(answer);
-        peer.setLocalDescription(answer);
-        socketio.emit('answer',{ room: currentRoom, answer: answer });
-    }, function(){console.log('error:createAns');});
-}
- 
-function answerReceived(answer) {
-console.log('ansrcv');
-console.log(new RTCSessionDescription(answer));
-    peer.setRemoteDescription(new RTCSessionDescription(answer));
-}
-
-function iceCandidateReceived(message) {
-    var candidate = new RTCIceCandidate(message);
-console.log('iceCandidateReceived');
-console.log(candidate);
-    peer.addIceCandidate(candidate);
-}
-
-function error(){
-  console.log('error');
 }

@@ -2,6 +2,7 @@
 var socketio = io.connect('http://'+location.host);
 socketio.on('connected', function() { enterRoom();});
 socketio.on('publish', function (msg) { addMessage(msg); });
+socketio.on('callfor', function (id) { sendOffer(id); });
 socketio.on('offer', function (offer) { offerReceived(offer); });
 socketio.on('answer', function (answer) { answerReceived(answer); });
 socketio.on('icecandy',function (message){iceCandidateReceived(message);});

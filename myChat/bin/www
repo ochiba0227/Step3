@@ -8,6 +8,9 @@ var server = app.listen(app.get('port'), function() {
   debug('Express server listening on port ' + server.address().port);
 });
 
+// 各ソケットの入室状態を示す連想配列
+var room = new Array();
+
 // add start
 var socketIO = require('socket.io');
 // クライアントの接続を待つ(IPアドレスとポート番号を結びつけます)
@@ -20,6 +23,7 @@ var chat = io.sockets.on('connection', function(socket) {
 
   // 初期化処理
   socket.on('init', function(data) {
+    room[socket.id]=data.room;
     socket.join(data.room);
     socket.broadcast.to(data.room).emit('publish', data.name + ' さんが入室');
   });
@@ -31,32 +35,46 @@ var chat = io.sockets.on('connection', function(socket) {
     chat.to(data.room).emit('publish', data.value );
   });
 
-  // 接続要求を他のクライアントへ送信
+  // 同室の他クライアントへ接続要求を要請
+  socket.on('callme', function(data) {
+    // 自分以外のクライアントに送信
+    console.log('callme');
+    console.log(socket.id);
+    socket.broadcast.to(data.room).emit('callfor', socket.id);
+  });
+
+  // 接続要求を特定のクライアントに送信
   socket.on('offer', function(data) {
     // 自分以外のクライアントに送信
     console.log('offer');
-    console.log(data.desc);
-    socket.broadcast.to(data.room).emit('offer', data.desc);
+    console.log('data.id:'+data.id);
+    console.log('socket.id:'+socket.id);
+    chat.to(data.id).emit('offer', {desc:data.desc, id:socket.id});
   });
 
-  // 接続要請の受理を他のクライアントへ送信
+  // 接続要請を特定のクライアントに送信
   socket.on('answer', function(data) {
     // 自分以外のクライアントに送信
     console.log('answer');
-    console.log(data.answer);
-    socket.broadcast.to(data.room).emit('answer', data.answer);
+    console.log('data.id:'+data.id);
+    console.log('socket.id:'+socket.id);
+    //socket.broadcast.to(data.room).emit('answer', data.answer);
+    chat.to(data.id).emit('answer', {desc:data.answer, id:socket.id});
   });
 
   // メディアストリームを他のクライアントへ送信
   socket.on('icecandy', function(data) {
     // 自分以外のクライアントに送信
     console.log('icecandy');
-    console.log(data.icecandy);
-    socket.broadcast.to(data.room).emit('icecandy', data.icecandy);
+    console.log('data.id:'+data.id);
+    console.log('socket.id:'+socket.id);
+    chat.to(data.id).emit('icecandy', {icecandy:data.icecandy, id:socket.id});
   });
 
   // クライアントが切断したときの処理
   socket.on('disconnect', function(){
     console.log('disconnected\n'+'IP Addr:'+socket.handshake.address+'\n'+'Time:'+socket.handshake.time+'\n');
+    //自動的に切断されるらしい
+    //socket.leave(room[socket.id]);
   });
 });
