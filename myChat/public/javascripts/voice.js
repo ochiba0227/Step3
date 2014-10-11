@@ -30,22 +30,20 @@ navigator.getMedia ({audio:true }, function(stream) {
   //自身のストリームをP2Pコネクションに追加
   peer.addStream(localMediaStream);
   //sendChannel = peer.createDataChannel("sendDataChannel", {reliable: false});
+}, function(err){ //エラー処理
+  console.log('getmedia error!!');
+});
+
+//------ここはoncreateに入れる予定--------
+  //自身のストリームの送信
   peer.onicecandidate = function(evt) {
       if (evt.candidate) {
-          socketio.emit('icecandy',new RTCIceCandidate(evt.candidate));
+          socketio.emit('icecandy',{ room: currentRoom, icecandy: new RTCIceCandidate(evt.candidate)});
       } else {
           console.log('onicecandidate with no candidate');
           console.log(evt);
       }
-  };
-
-//  peer.createOffer(function(desc) {
-//console.log('offer');
-//console.log(desc);
-//    peer.setLocalDescription(desc);
-//    socketio.emit('offer',desc);
-//  }, error);
-
+  }
   //ストリームの準備ができたとき
   peer.onaddstream=function(stream){
 console.log('onaddstream');
@@ -54,20 +52,18 @@ console.log(stream.stream);
 //    var mediaStreamSource = context.createMediaStreamSource(stream.stream);
 //    mediaStreamSource.connect(context.destination);
 //audioelementを作ってそこにストリームを投げる場合は再生される
-var audio_elem = document.createElement("audio");
-audio_elem.src = URL.createObjectURL(stream.stream);
-audio_elem.play();
+    var audio_elem = document.createElement("audio");
+    audio_elem.src = URL.createObjectURL(stream.stream);
+    audio_elem.play();
   }
-}, function(err){ //エラー処理
-  console.log('getmedia error!!');
-});
+//--------------
 
 function sendOffer(){
   peer.createOffer(function(desc) {
 console.log('offer');
 console.log(desc);
     peer.setLocalDescription(desc);
-    socketio.emit('offer',desc);
+    socketio.emit('offer',{ room: currentRoom, desc: desc });
   }, error);
 }
 
@@ -77,7 +73,7 @@ function offerReceived(offer) {
 console.log('createAns');
 console.log(answer);
         peer.setLocalDescription(answer);
-        socketio.emit('answer',answer);
+        socketio.emit('answer',{ room: currentRoom, answer: answer });
     }, function(){console.log('error:createAns');});
 }
  

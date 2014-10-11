@@ -1,0 +1,224 @@
+body{
+  width:100%
+  margin: 0;
+  padding: 90px 0 0 0;
+}
+
+div#header{
+  position: fixed !important;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom:0;
+  width: 100%;
+  height: 90px;
+  background-color: #c5ec84;
+  color: #fff;
+}
+div#header div.right{
+  height:100%;
+  padding:50px 25% 0 0;
+  float: right;
+  float: clear;
+}
+div#header div.left{
+  height:100%;
+  padding:20px 0 0 25%;
+  float: left;
+  float: clear;
+}
+button.clearButton{
+  height:40%;
+  font-size: 1em;
+  background-color: #c5ec84;
+  color: #fff;
+  border-style: none;
+}
+button.clearButton:hover {
+    background-color: #8fdbb5;
+    color: #fff;
+}
+
+div#main{
+  width: 50%;
+  height: 100%;
+  overflow: auto;
+  background-color: #ffffff;
+  padding:20px;
+  margin-left:auto;margin-right:auto;
+}
+
+div#form{
+  width: 100%;
+  height: 60px;
+  padding:5px;
+  margin: 0 0 5px 0;
+  border-style: solid;
+  border-width: 1px;
+  border-color: #000080;
+}
+div#form div.left{
+  width:70%;
+  height:100%;
+  float:left;
+  float:clear;
+}
+div#form div.right{
+  width:30%;
+  height:100%;
+  float:right;
+  float:clear;
+}
+input#listName{
+  font-size: 1.0em;
+  width:98%;
+  height:55px;
+  margin: 0 10px 0 0;
+}
+button.myButton{
+  width:100%;
+  height:60px;
+  font-size: 1.4em;
+  font-weight: bold;
+  padding: 10px 30px;
+  background-color: #c5ec84;
+  color: #fff;
+  border-style: none;
+}
+button.myButton:hover {
+  background-color: #b7e763;
+  color: #fff;
+}
+button.delButton{
+  width:30%;
+  height:100%;
+  font-size: 1.0em;
+  font-weight: bold;
+  background-color: #eb7f8d;
+  color: #fff;
+  border-style: none;
+  float: right;
+  float: clear;
+}
+button.delButton:hover {
+  background-color: #e76373;
+  color: #fff;
+}
+button.editButton{
+  font-size: 1.0em;
+  font-weight: bold;
+  background-color: #e0aa8a;
+  margin: 0 5px;
+  color: #fff;
+  border-style: none;
+}
+button.editButton:hover {
+  background-color: #d8936b;
+  color: #fff;
+}
+
+div#twocolumnList {
+  width: 100%;
+}
+div#twocolumnList div.sur{
+  width:100%;
+  height:60px;
+  padding:5px;
+  margin: 0 0 5px 0;
+  border-style: solid;
+  border-width: 1px;
+  border-color: #000080;
+}
+div#twocolumnList div.sur:hover {
+  background-color: #f5fce8;
+}
+div#twocolumnList div.cola{
+  width:70%;
+  height:100%;
+  float:left;
+  float:clear;
+}
+div#twocolumnList div.colb{
+  width:30%;
+  height:100%;
+  float:right;
+  float:clear;
+}
+
+div#newToDoform{
+  width: 100%;
+  height: 80px;
+  padding:5px;
+  margin: 0 0 5px 0;
+  border-style: solid;
+  border-width: 1px;
+  border-color: #000080;
+}
+
+div#newToDoform div.left{
+  width:70%;
+  height:100%;
+  float:left;
+  float:clear;
+}
+div#newToDoform div.right{
+  width:30%;
+  height:100%;
+  float:right;
+  float:clear;
+}
+
+input#ToDoName{
+  width:70%;
+  margin: 5px 0 5px 1em;
+}
+input#ToDoDue{
+  width:70%;
+  margin: 5px 0 5px 2em;
+}
+
+button#ListButton{
+  height:70%;
+  float:right;
+  float:clear;
+}
+
+button.mytruebutton{
+    width:65%;
+    height:100%;
+    font-size: 1.0em;
+    font-weight: bold;
+    padding: 10px 30px;
+    margin: 0 5px 0 0;
+    background-color: #7fc3eb;
+    color: #fff;
+    border-style: none;
+}
+button.mytruebutton:hover {
+    background-color: #63b7e7;
+    color: #fff;
+}
+
+button.myfalsebutton{
+    width:65%;
+    height:100%;
+    font-size: 1.0em;
+    font-weight: bold;
+    padding: 10px 30px;
+    margin: 0 5px 0 0;
+    background-color: #ec83c5;
+    color: #fff;
+    border-style: none;
+}
+button.myfalsebutton:hover {
+    background-color: #e34faa;
+    color: #fff;
+}
+
+button#SearchButton{
+  float:right;
+  float:clear;
+}
+div#messageArea{
+  margin: 10px 0;
+}

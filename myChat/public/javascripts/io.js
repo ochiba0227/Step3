@@ -1,7 +1,7 @@
 ﻿// 1.イベントとコールバックの定義
 var socketio = io.connect('http://'+location.host);
-socketio.on('connected', function(name) {});
-socketio.on('publish', function (data) { addMessage(data.value); });
+socketio.on('connected', function() { enterRoom();});
+socketio.on('publish', function (msg) { addMessage(msg); });
 socketio.on('offer', function (offer) { offerReceived(offer); });
 socketio.on('answer', function (answer) { answerReceived(answer); });
 socketio.on('icecandy',function (message){iceCandidateReceived(message);});
@@ -12,10 +12,14 @@ function start(name) {
   socketio.emit('connected', name);
 }
 
+function enterRoom(){
+  socketio.emit('init', { room: currentRoom, name: myName });
+}
+
 function publishMessage() {
   var textInput = document.getElementById('msg_input');
   var msg = '[' + myName + '] ' + textInput.value;
-  socketio.emit('publish', {value: msg});
+  socketio.emit('publish', { room: currentRoom, value: msg });
   textInput.value = '';
 }
 
@@ -24,9 +28,3 @@ function addMessage (msg) {
   domMeg.innerHTML = new Date().toLocaleTimeString() + ' ' + msg;
   msgArea.appendChild(domMeg);
 }
-
-// 3.開始処理
-var msgArea = document.getElementById('msg');
-var myName = Math.floor(Math.random()*100) + 'さん';
-addMessage('貴方は' + myName + 'として入室しました');
-start(myName);

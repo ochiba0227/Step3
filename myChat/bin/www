@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+ï»¿#!/usr/bin/env node
 var debug = require('debug')('myChat');
 var app = require('../app');
 
@@ -10,45 +10,52 @@ var server = app.listen(app.get('port'), function() {
 
 // add start
 var socketIO = require('socket.io');
-// ƒNƒ‰ƒCƒAƒ“ƒg‚ÌÚ‘±‚ğ‘Ò‚Â(IPƒAƒhƒŒƒX‚Æƒ|[ƒg”Ô†‚ğŒ‹‚Ñ‚Â‚¯‚Ü‚·)
+// ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆã®æ¥ç¶šã‚’å¾…ã¤(IPã‚¢ãƒ‰ãƒ¬ã‚¹ã¨ãƒãƒ¼ãƒˆç•ªå·ã‚’çµã³ã¤ã‘ã¾ã™)
 var io = socketIO.listen(server);
 
-// ƒNƒ‰ƒCƒAƒ“ƒg‚ªÚ‘±‚µ‚Ä‚«‚½‚Æ‚«‚Ìˆ—
-io.sockets.on('connection', function(socket) {
+// ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆãŒæ¥ç¶šã—ã¦ããŸã¨ãã®å‡¦ç†
+var chat = io.sockets.on('connection', function(socket) {
   console.log('connected\n'+'IP Addr:'+socket.handshake.address+'\n'+'Time:'+socket.handshake.time+'\n');
+  socket.emit('connected');
 
-  // ƒƒbƒZ[ƒW‚ğó‚¯‚½‚Æ‚«‚Ìˆ—
+  // åˆæœŸåŒ–å‡¦ç†
+  socket.on('init', function(data) {
+    socket.join(data.room);
+    socket.broadcast.to(data.room).emit('publish', data.name + ' ã•ã‚“ãŒå…¥å®¤');
+  });
+
+  // ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã‚’å—ã‘ãŸã¨ãã®å‡¦ç†
   socket.on('publish', function(data) {
-    // ‚Â‚È‚ª‚Á‚Ä‚¢‚éƒNƒ‰ƒCƒAƒ“ƒg‘Sˆõ‚É‘—M
+    // ã¤ãªãŒã£ã¦ã„ã‚‹ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆå…¨å“¡ã«é€ä¿¡
     console.log('published:'+data.value);
-    io.sockets.emit('publish', { value: data.value });
+    chat.to(data.room).emit('publish', data.value );
   });
 
+  // æ¥ç¶šè¦æ±‚ã‚’ä»–ã®ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆã¸é€ä¿¡
   socket.on('offer', function(data) {
-    // ©•ªˆÈŠO‚ÌƒNƒ‰ƒCƒAƒ“ƒg‚É‘—M
+    // è‡ªåˆ†ä»¥å¤–ã®ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆã«é€ä¿¡
     console.log('offer');
-    console.log(data);
-    //io.sockets.emit('offer', data);
-    socket.broadcast.emit('offer', data);
+    console.log(data.desc);
+    socket.broadcast.to(data.room).emit('offer', data.desc);
   });
 
+  // æ¥ç¶šè¦è«‹ã®å—ç†ã‚’ä»–ã®ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆã¸é€ä¿¡
   socket.on('answer', function(data) {
-    // ©•ªˆÈŠO‚ÌƒNƒ‰ƒCƒAƒ“ƒg‚É‘—M
+    // è‡ªåˆ†ä»¥å¤–ã®ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆã«é€ä¿¡
     console.log('answer');
-    console.log(data);
-    //io.sockets.emit('answer', data);
-    socket.broadcast.emit('answer', data);
+    console.log(data.answer);
+    socket.broadcast.to(data.room).emit('answer', data.answer);
   });
 
+  // ãƒ¡ãƒ‡ã‚£ã‚¢ã‚¹ãƒˆãƒªãƒ¼ãƒ ã‚’ä»–ã®ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆã¸é€ä¿¡
   socket.on('icecandy', function(data) {
-    // ©•ªˆÈŠO‚ÌƒNƒ‰ƒCƒAƒ“ƒg‚É‘—M
+    // è‡ªåˆ†ä»¥å¤–ã®ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆã«é€ä¿¡
     console.log('icecandy');
-    console.log(data);
-    //io.sockets.emit('icecandy', data);
-    socket.broadcast.emit('icecandy', data);
+    console.log(data.icecandy);
+    socket.broadcast.to(data.room).emit('icecandy', data.icecandy);
   });
 
-  // ƒNƒ‰ƒCƒAƒ“ƒg‚ªØ’f‚µ‚½‚Æ‚«‚Ìˆ—
+  // ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆãŒåˆ‡æ–­ã—ãŸã¨ãã®å‡¦ç†
   socket.on('disconnect', function(){
     console.log('disconnected\n'+'IP Addr:'+socket.handshake.address+'\n'+'Time:'+socket.handshake.time+'\n');
   });
