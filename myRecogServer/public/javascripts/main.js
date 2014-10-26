@@ -2,6 +2,7 @@
 var id;
 var socketio = io.connect('http://'+location.host);
 socketio.on('connected', function(data) {id=data});
+socketio.on('return', function(data) {console.log(data);});
 
 function upload(file){
   var fileReader = new FileReader();
