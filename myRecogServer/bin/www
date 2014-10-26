@@ -38,7 +38,7 @@ io.sockets.on('connection', function(socket) {
         var newlinePos = sentence.search('\n');
         //10はsentence1:の長さ
         socket.emit('return',sentence.substring(10,newlinePos));
-        fs.unlink(writePath, function (){});
+        //fs.unlink(writePath, function (){});
       });
     }).on('pipe', function (src) {});
     writeStream.write(writeFile,'binary');

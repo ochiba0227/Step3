@@ -56,9 +56,10 @@ function captureStop(){
     recorder && recorder.exportWAV(wavExported);
 }
 
+//サーバへwavファイルをアップロードする
 var wavExported = function(blob) {
-     var url = URL.createObjectURL(blob);
-     upload(blob);
-     recorder.clear();
-     captureStart();
+    upload(blob);
+    //clearより先にcapturestartが走ってしまう．
+    recorder.clear();
+    captureStart();
 }
