@@ -1,6 +1,24 @@
 ﻿// mongooseを用いてMongoDBに接続する
 var mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/morishita_step3db');
+mongoose.connect(process.env.MONGOLAB_URI || 'mongodb://localhost/morishita_step3db');
+
+var net = require('net');
+
+var client = net.createConnection(10500, 'localhost', function()
+{
+    console.log('connected.');
+});
+
+client.on('data', function(data)
+{
+    console.log(data.toString());
+    client.end();
+});
+
+client.on('end', function()
+{
+    console.log('disconnected.');
+});
 
 var express = require('express');
 var path = require('path');
@@ -8,10 +26,12 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var multer = require('multer');
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
 var room = require('./routes/chatroom');
+var upload = require('./routes/upload');
 
 // チャットルームのスキーマを定義する
 var Schema = mongoose.Schema;
@@ -26,18 +46,23 @@ var app = express();
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
-
+app.set('transports', ['websocket', 'xhr-polling', 'jsonp-polling', 'htmlfile', 'flashsocket']);
+app.set('polling duration', 10);
 // uncomment after placing your favicon in /public
 //app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(logger('dev'));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: false}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(multer({ dest: './uploads/'}))
 
 app.use('/', routes);
 app.use('/users', users);
 app.use('/chatroom', room);
+
+// /uploadにPOSTアクセスしたとき，音声ファイルのアップロードを行うAPI
+app.post('/upload', upload.post);
 
 // /roomにGETアクセスしたとき、チャットルームを取得・検索するAPI
 app.get('/room', function(req, res) {
@@ -111,12 +136,17 @@ app.post('/room', function(req, res) {
     var roomDB = mongoose.model('room');
     var newRoom = new roomDB();
     newRoom.name = name;
-    newRoom.id = "today"; // 部屋のID 作成日のyyyymmddhhmmss+5桁の乱数
     newRoom.save();
     res.send(true);
   } else {
     res.send(false);
   }
+});
+
+// /voiceにPOSTアクセスしたとき、チャットルームを追加・変更・削除するAPI
+app.post('/voice', function(req, res) {
+  client.write('Who needs a browser to communicate?');
+  console.log('voice');
 });
 
 // エラーハンドラは下に持っていく

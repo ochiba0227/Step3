@@ -4,11 +4,16 @@ block content
   input#msg_input(type='text', style='width:200px;')
   button(onclick='publishMessage();') 語る
   button(onclick='callMe();') ソケット結合
+  button(onclick='sendV();') 音声入力
+  button(onclick='recorder && recorder.record();') 録音開始
+  button(onclick='recorder && recorder.stop(); recorder && recorder.exportWAV(wavExported);') 録音停止
   #msg
+  #timeline
 
 block scripts
   script(src='/socket.io/socket.io.js')
   script(src='javascripts/jquery-2.0.0.min.js')
+  script(src='javascripts/recorder.js')
   script(src='javascripts/io.js')
   script(src='javascripts/voice.js')
   script(src='javascripts/chatroom.js')

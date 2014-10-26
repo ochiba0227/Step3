@@ -1,0 +1,57 @@
+﻿#!/usr/bin/env node
+//juliusの実行用
+var execJulius = require('child_process').exec;
+
+var debug = require('debug')('myRecogServer');
+var app = require('../app');
+
+app.set('port', process.env.PORT || 3000);
+
+var server = app.listen(app.get('port'), function() {
+  debug('Express server listening on port ' + server.address().port);
+});
+
+// add start
+var socketIO = require('socket.io');
+// クライアントの接続を待つ(IPアドレスとポート番号を結びつけます)
+var io = socketIO.listen(server);
+
+// クライアントが接続してきたときの処理
+io.sockets.on('connection', function(socket) {
+  console.log('connected\n'+'IP Addr:'+socket.handshake.address+'\n'+'Time:'+socket.handshake.time+'\n');
+  socket.emit('connected',socket.id);
+  socket.on('upload', function(data) {
+  var fs = require('fs');
+  var writeFile = data.file;
+  var writePath = './uploads/'+data.name+'.wav';
+  var writeStream = fs.createWriteStream(writePath);
+  writeStream.on('drain', function () {} ).on('error', function (exception) {
+    console.log("exception:"+exception);
+    }).on('close', function () {
+      //juliusプロセスを呼び出す
+      var command = 'cd C:/julius/ && echo C:/Users/Ochiba/Documents/step3/myRecogServer/'+data.name+'.wav';
+console.log(command);
+      var child = execJulius(command, function(err, stdout, stderr) {
+        if (!err) {
+          var sentencePos = stdout.search('sentence1:');
+          var sentence = stdout.substr(sentencePos);
+          var newlinePos = sentence.search('\n');
+          console.log('senpos: ' + sentencePos);
+          console.log('newlinePos: ' + newlinePos);
+          //sentence1:分開始位置をずらす
+          console.log('text:' + sentence.substring(10,newlinePos));
+console.log(stdout);
+          socket.emit('publish', sentence.substring(10,newlinePos) );
+        } else {
+          console.log(err);
+          // err.code will be the exit code of the child process
+          console.log(err.code);
+          // err.signal will be set to the signal that terminated the process
+          console.log(err.signal);
+        }
+      });
+    }).on('pipe', function (src) {});
+    writeStream.write(writeFile,'binary');
+    writeStream.end();
+  }); 
+});

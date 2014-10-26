@@ -12,11 +12,7 @@ block content
     #messageArea(style='display: none;')
     #twocolumnList
 
-
-  input#msg_input(type='text', style='width:200px;')
-  button(onclick='publishMessage();') 語る
-  button(onclick='sendOffer();') ソケット結合
-  #msg
+  button#sendButton.myButton wav送信
 
 block scripts
   script(src='/socket.io/socket.io.js')

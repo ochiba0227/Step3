@@ -1,15 +1,15 @@
 ﻿#!/usr/bin/env node
+//juliusの実行用
+var execJulius = require('child_process').exec;
+
 var debug = require('debug')('myChat');
 var app = require('../app');
 
-app.set('port', process.env.PORT || 3000);
+app.set('port', process.env.PORT || 5000);
 
 var server = app.listen(app.get('port'), function() {
   debug('Express server listening on port ' + server.address().port);
 });
-
-// 各ソケットの入室状態を示す連想配列
-var room = new Array();
 
 // add start
 var socketIO = require('socket.io');
@@ -23,7 +23,6 @@ var chat = io.sockets.on('connection', function(socket) {
 
   // 初期化処理
   socket.on('init', function(data) {
-    room[socket.id]=data.room;
     socket.join(data.room);
     socket.broadcast.to(data.room).emit('publish', data.name + ' さんが入室');
   });
@@ -71,10 +70,33 @@ var chat = io.sockets.on('connection', function(socket) {
     chat.to(data.id).emit('icecandy', {icecandy:data.icecandy, id:socket.id});
   });
 
+  socket.on('voice',function(data){
+console.log('voice!!!!!!!!!!');
+  //juliusプロセスを呼び出す
+  var child = execJulius('runjulius.bat', function(err, stdout, stderr) {
+    if (!err) {
+      var sentencePos = stdout.search('sentence1:');
+      var sentence = stdout.substr(sentencePos);
+      var newlinePos = sentence.search('\n');
+    
+      console.log('senpos: ' + sentencePos);
+      console.log('newlinePos: ' + newlinePos);
+      //sentence1:分開始位置をずらす
+      console.log('text:' + sentence.substring(10,newlinePos));
+      chat.to(data.room).emit('publish', sentence.substring(10,newlinePos) );
+    } else {
+      console.log(err);
+      // err.code will be the exit code of the child process
+      console.log(err.code);
+      // err.signal will be set to the signal that terminated the process
+      console.log(err.signal);
+    }
+  });
+  });
+
   // クライアントが切断したときの処理
   socket.on('disconnect', function(){
-    console.log('disconnected\n'+'IP Addr:'+socket.handshake.address+'\n'+'Time:'+socket.handshake.time+'\n');
-    //自動的に切断されるらしい
-    //socket.leave(room[socket.id]);
+    console.log('disconnected\n'+'ID:'+socket.id+'\n'+'IP Addr:'+socket.handshake.address+'\n'+'Time:'+socket.handshake.time+'\n');
+    //chat.emit('disconnect', socket.id);
   });
 });

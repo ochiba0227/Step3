@@ -1,5 +1,4 @@
 ﻿$(loaded);
-
 function loaded() {
   showList();
   // ボタンをクリックしたときに実行するイベントを設定する
@@ -7,6 +6,14 @@ function loaded() {
     // コールバックとしてメソッドを引数にわたす
     function() {
       saveList();
+    });
+  $('#sendButton').click(
+    // コールバックとしてメソッドを引数にわたす
+    function() {
+      $.post('voice', function(res){
+        console.log("removetodo_all:");
+      });
+console.log("removetodo_all:");
     });
   $('#clearAllButton').click(function(){
     // 確認画面を表示
