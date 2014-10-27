@@ -11,6 +11,8 @@ socketio.on('return', function(data) {console.log(data);});
 var audioContext;
 var recorder;
 var lowpassFilter;
+//streamをグローバル変数に保持すれば止まらない．
+var audioStream;
 
 function upload(file){
   var fileReader = new FileReader();
@@ -35,7 +37,8 @@ function loaded() {
   });
   navigator.getMedia({video: false, audio: true}, function(stream) {
     audioContext = new AudioContext();
-    var input = audioContext.createMediaStreamSource(stream);
+    audioStream = stream;
+    var input = audioContext.createMediaStreamSource(audioStream);
     lowpassFilter = audioContext.createBiquadFilter();
     lowpassFilter.type = 0;
     lowpassFilter.frequency.value = 20000;
