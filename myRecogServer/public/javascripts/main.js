@@ -4,15 +4,14 @@ navigator.getMedia = ( navigator.getUserMedia || navigator.webkitGetUserMedia ||
 window.AudioContext = window.AudioContext || window.webkitAudioContext || window.mozAudioContext || window.msAudioContext;
 
 var id;
-var socketio = io.connect('http://'+location.host);
+var socketio = io.connect('https://'+location.host);
 socketio.on('connected', function(data) {id=data});
-socketio.on('return', function(data) {console.log(data);});
+socketio.on('return', function(data) {$('#list').append('<li>' + data + '</li>');});
 
 var audioContext;
 var recorder;
 var lowpassFilter;
-//streamをグローバル変数に保持すれば止まらない．
-var audioStream;
+
 
 function upload(file){
   var fileReader = new FileReader();
@@ -30,11 +29,6 @@ function upload(file){
 }
 
 function loaded() {
-  //fileinputが変わったら
-  $("#fileInput").change(function(event){
-    var file = event.target.files[0];
-    upload(file);//ファイルを送る関数
-  });
   navigator.getMedia({video: false, audio: true}, function(stream) {
     audioContext = new AudioContext();
     audioStream = stream;
@@ -60,7 +54,7 @@ function captureStop(){
 }
 
 //サーバへwavファイルをアップロードする
-var wavExported = function(blob) {
+function wavExported(blob) {
     upload(blob);
     //clearより先にcapturestartが走ってしまう．
     recorder.clear();

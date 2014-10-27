@@ -7,6 +7,19 @@ window.RTCPeerConnection = peerConnection;
 window.RTCSessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription;
 window.RTCIceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate;
 
+// 音声認識用
+var recogID;
+var recogSocket = io.connect('https://aocserver.dip.jp:3000');
+//音声認識サーバに接続完了
+recogSocket.on('connected', function(data) {
+  recogID=data;
+  console.log('connected to recogserver');
+});
+recogSocket.on('return', function(data) {
+  console.log(data);
+  publishMessage(data);
+});
+
 //録音用
 var audioContext;
 var recorder;
@@ -14,7 +27,7 @@ var recorder;
 //ノイズ対策のローパスフィルタの作成
 var lowpassFilter;
 
-//自身のストリーム
+//自身のストリーム．無いとFirefoxは止まる
 var localMediaStream;
 
 //ピアを作成
@@ -36,9 +49,47 @@ navigator.getMedia ({audio:true }, function(stream) {
   lowpassFilter.frequency.value = 20000;
   input.connect(lowpassFilter);
   recorder = new Recorder(lowpassFilter, { workerPath: 'javascripts/recorderWorker.js' });
+  //認識開始
+  captureStart();
 }, function(err){ //エラー処理
   console.log('getmedia error!!');
 });
+
+//音声認識開始
+function captureStart(){
+    recorder && recorder.record();
+    setTimeout('captureStop()', 10000);
+}
+
+//10秒一区切り
+function captureStop(){
+    recorder && recorder.stop();
+    recorder && recorder.exportWAV(wavExported);
+}
+
+//wavblobの生成完了コールバック
+function wavExported(blob) {
+    upload(blob);
+    recorder.clear();
+    //次の音声認識
+    captureStart();
+}
+
+//認識サーバへwavファイルをアップロードする
+function upload(file){
+  var fileReader = new FileReader();
+  var send_file = file;
+
+  var data = {};
+  var date = new Date();
+  fileReader.readAsBinaryString(send_file);
+  fileReader.onload = function(event) {
+    data.file = event.target.result;
+    data.name = recogID + date.getMinutes() + date.getSeconds();
+console.log("upupupu");
+    recogSocket.emit('upload',data);
+  }
+}
 
 //各ピアに接続要求を投げるよう要求
 function callMe(){

@@ -2,24 +2,6 @@
 var mongoose = require('mongoose');
 mongoose.connect(process.env.MONGOLAB_URI || 'mongodb://localhost/morishita_step3db');
 
-var net = require('net');
-
-var client = net.createConnection(10500, 'localhost', function()
-{
-    console.log('connected.');
-});
-
-client.on('data', function(data)
-{
-    console.log(data.toString());
-    client.end();
-});
-
-client.on('end', function()
-{
-    console.log('disconnected.');
-});
-
 var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
@@ -60,6 +42,13 @@ app.use(multer({ dest: './uploads/'}))
 app.use('/', routes);
 app.use('/users', users);
 app.use('/chatroom', room);
+
+//cors
+app.all('*', function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+ });
 
 // /uploadにPOSTアクセスしたとき，音声ファイルのアップロードを行うAPI
 app.post('/upload', upload.post);

@@ -1,6 +1,4 @@
 ﻿#!/usr/bin/env node
-//juliusの実行用
-var execJulius = require('child_process').exec;
 
 var debug = require('debug')('myChat');
 var app = require('../app');
@@ -15,7 +13,8 @@ var server = app.listen(app.get('port'), function() {
 var socketIO = require('socket.io');
 // クライアントの接続を待つ(IPアドレスとポート番号を結びつけます)
 var io = socketIO.listen(server);
-
+//cors
+//io.set('origins', 'https://aocserver.dip.jp:3000');
 // クライアントが接続してきたときの処理
 var chat = io.sockets.on('connection', function(socket) {
   console.log('connected\n'+'IP Addr:'+socket.handshake.address+'\n'+'Time:'+socket.handshake.time+'\n');
@@ -68,30 +67,6 @@ var chat = io.sockets.on('connection', function(socket) {
     console.log('data.id:'+data.id);
     console.log('socket.id:'+socket.id);
     chat.to(data.id).emit('icecandy', {icecandy:data.icecandy, id:socket.id});
-  });
-
-  socket.on('voice',function(data){
-console.log('voice!!!!!!!!!!');
-  //juliusプロセスを呼び出す
-  var child = execJulius('runjulius.bat', function(err, stdout, stderr) {
-    if (!err) {
-      var sentencePos = stdout.search('sentence1:');
-      var sentence = stdout.substr(sentencePos);
-      var newlinePos = sentence.search('\n');
-    
-      console.log('senpos: ' + sentencePos);
-      console.log('newlinePos: ' + newlinePos);
-      //sentence1:分開始位置をずらす
-      console.log('text:' + sentence.substring(10,newlinePos));
-      chat.to(data.room).emit('publish', sentence.substring(10,newlinePos) );
-    } else {
-      console.log(err);
-      // err.code will be the exit code of the child process
-      console.log(err.code);
-      // err.signal will be set to the signal that terminated the process
-      console.log(err.signal);
-    }
-  });
   });
 
   // クライアントが切断したときの処理

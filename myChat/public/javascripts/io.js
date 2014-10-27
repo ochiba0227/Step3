@@ -8,12 +8,6 @@ socketio.on('answer', function (answer) { answerReceived(answer); });
 socketio.on('icecandy',function (message){iceCandidateReceived(message);});
 socketio.on('disconnect', function () {});
 
-console.log("location.host:"+location.host);
-
-function sendV(){
-  socketio.emit('voice', { room: currentRoom, name: myName });
-}
-
 // 2.イベントに絡ませる関数の定義
 function start(name) {
   socketio.emit('connected', name);

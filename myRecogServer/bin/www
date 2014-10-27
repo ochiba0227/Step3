@@ -1,10 +1,23 @@
 ﻿#!/usr/bin/env node
 var debug = require('debug')('myRecogServer');
 var app = require('../app');
+var https = require('https');
+var fs = require('fs');
+
+// 証明書のファイルを指定します
+var options = {
+    key: fs.readFileSync('key.pem'),
+    cert: fs.readFileSync('cert.pem')
+};
 
 app.set('port', process.env.PORT || 3000);
 
-var server = app.listen(app.get('port'), function() {
+////corse有効
+//var corser = require('corser');
+//app.use(corser.create());
+
+// ポート3000でサーバを生成します
+var server = https.createServer(options,app).listen(app.get('port'), function() {
   debug('Express server listening on port ' + server.address().port);
 });
 
@@ -12,7 +25,8 @@ var server = app.listen(app.get('port'), function() {
 var socketIO = require('socket.io');
 // クライアントの接続を待つ(IPアドレスとポート番号を結びつけます)
 var io = socketIO.listen(server);
-
+//cors
+io.set('origins', '*:*');
 // クライアントが接続してきたときの処理
 io.sockets.on('connection', function(socket) {
   console.log('connected\n'+'IP Addr:'+socket.handshake.address+'\n'+'Time:'+socket.handshake.time+'\n');
@@ -28,16 +42,26 @@ io.sockets.on('connection', function(socket) {
       //juliusの実行用
       var exec = require('child_process').exec;
       exec('cd C:\\julius\\ && echo C:\\Users\\Ochiba\\Documents\\step3\\myRecogServer\\uploads\\'+data.name+'.wav' + '|.\\bin\\julius -C main.jconf -C am-gmm.jconf',function (error, stdout, stderr) {
-        console.log('stdout: ' + stdout);
-        console.log('stderr: ' + stderr);
+//        console.log('stdout: ' + stdout);
+//        console.log('stderr: ' + stderr);
         if (error !== null) {
           console.log('exec error: ' + error);
         }
-        var sentencePos = stdout.search('sentence1:');
-        var sentence = stdout.substr(sentencePos);
-        var newlinePos = sentence.search('\n');
-        //10はsentence1:の長さ
-        socket.emit('return',sentence.substring(10,newlinePos));
+        var sentencePos;
+        var sentence = stdout;
+        var newlinePos;
+        while(sentence.search('sentence1:')!=-1){
+          sentencePos=sentence.search('sentence1:');
+          sentence = sentence.substr(sentencePos);
+          newlinePos = sentence.search('\n');
+          //10はsentence1:の長さ
+          var recogText = sentence.substring(10,newlinePos);
+          //認識失敗の場合
+          if(recogText.length!=1 && recogText != '\n'){
+            socket.emit('return',recogText);
+          }
+          sentence = sentence.substr(10+recogText.length);
+        }
         fs.unlink(writePath, function (){});
       });
     }).on('pipe', function (src) {});
