@@ -4,9 +4,7 @@ block content
   input#msg_input(type='text', style='width:200px;')
   button(onclick='publishMessage();') 語る
   button(onclick='callMe();') ソケット結合
-  button(onclick='sendV();') 音声入力
-  button(onclick='recorder && recorder.record();') 録音開始
-  button(onclick='recorder && recorder.stop(); recorder && recorder.exportWAV(wavExported);') 録音停止
+  button(onclick='window.location.href = \'https://aocserver.dip.jp:3000\';') 認証ページへ
   #msg
   #timeline
 

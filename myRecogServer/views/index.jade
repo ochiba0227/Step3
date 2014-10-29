@@ -1,21 +1,10 @@
-﻿extends layout
+﻿doctype html
+html
+  head
+    meta(charset='UTF-8')
+    title= title
+    link(rel='stylesheet', href='stylesheets/default.css')
+  body(onload='onload();')
+    前のページに戻ります．
 
-block content
-  #main
-    | 新しいチャットルームを作成する
-    br
-    #form
-      .left
-        input#listName(type='text', maxlength='30', placeholder='チャットルーム名を入力')
-      .right
-        button#cleateButton.myButton リストの作成
-    #messageArea(style='display: none;')
-    #list
-
-  button#sendButton.myButton wav送信
-
-block scripts
-  script(src='/socket.io/socket.io.js')
-  script(src='javascripts/jquery-2.0.0.min.js')
-  script(src='javascripts/recorder.js')
-  script(src='javascripts/main.js')
+  script(src='javascripts/back.js')

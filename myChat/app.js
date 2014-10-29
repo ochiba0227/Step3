@@ -13,7 +13,6 @@ var multer = require('multer');
 var routes = require('./routes/index');
 var users = require('./routes/users');
 var room = require('./routes/chatroom');
-var upload = require('./routes/upload');
 
 // チャットルームのスキーマを定義する
 var Schema = mongoose.Schema;
@@ -42,16 +41,6 @@ app.use(multer({ dest: './uploads/'}))
 app.use('/', routes);
 app.use('/users', users);
 app.use('/chatroom', room);
-
-//cors
-app.all('*', function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  next();
- });
-
-// /uploadにPOSTアクセスしたとき，音声ファイルのアップロードを行うAPI
-app.post('/upload', upload.post);
 
 // /roomにGETアクセスしたとき、チャットルームを取得・検索するAPI
 app.get('/room', function(req, res) {
@@ -130,12 +119,6 @@ app.post('/room', function(req, res) {
   } else {
     res.send(false);
   }
-});
-
-// /voiceにPOSTアクセスしたとき、チャットルームを追加・変更・削除するAPI
-app.post('/voice', function(req, res) {
-  client.write('Who needs a browser to communicate?');
-  console.log('voice');
 });
 
 // エラーハンドラは下に持っていく
