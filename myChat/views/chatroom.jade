@@ -1,16 +1,20 @@
 ﻿extends layout
 
 block content
-  input#msg_input(type='text', style='width:200px;')
-  button(onclick='publishMessage();') 語る
-  button(onclick='callMe();') ソケット結合
-  button(onclick='window.location.href = \'https://aocserver.dip.jp:3000\';') 認証ページへ
-  #msg
-  #timeline
+  .container
+    .row
+      .col-lg-12
+        h3#roomName
+        textarea#timeline.form-control(readonly='readonly')
+        .input-group
+          input#msg_input.form-control(type='text', placeholder='メッセージを入力')
+          span.input-group-btn
+            button.btn.btn-default(onclick='publishMessage();',type='button') 送信
+        button(onclick='callMe();') ソケット結合
 
 block scripts
+  link(rel='stylesheet', href='stylesheets/chatroom.css')
   script(src='/socket.io/socket.io.js')
-  script(src='javascripts/jquery-2.0.0.min.js')
   script(src='javascripts/recorder.js')
   script(src='javascripts/bufRecorder.js')
   script(src='javascripts/io.js')

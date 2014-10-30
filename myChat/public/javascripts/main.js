@@ -1,4 +1,5 @@
 ﻿$(loaded);
+
 function loaded() {
   showList();
   // ボタンをクリックしたときに実行するイベントを設定する
@@ -6,14 +7,6 @@ function loaded() {
     // コールバックとしてメソッドを引数にわたす
     function() {
       saveList();
-    });
-  $('#sendButton').click(
-    // コールバックとしてメソッドを引数にわたす
-    function() {
-//      $.post('voice', function(res){
-//        console.log("removetodo_all:");
-//      });
-document.location = '/adjust';
     });
 }
 
@@ -60,7 +53,7 @@ function showList() {
       // 取得したチャットルームを追加していく
       $list.append('<tbody>');
       $.each(rooms, function(index, room){
-        $list.append('<tr>' + '<td><a href=\'#\' onClick=\"setID(\'' + room._id +'\')\"><b>' + room.name + '</td>' + '<td>' + getDate(new Date(room.createdDate)) + '</td>' + '<td><div class="btn-group"><button class=\"btn btn-warning\" onClick=\"editName(\'' + room.name + '\',\''+ room._id +'\')\">EditNAME</button>' + '<button class=\"btn btn-danger\" onClick=\"removeRoom(\''+ room.name + '\',\'' + room._id +'\')\">DeleteRoom</button></div></td>' + '</tr>');
+        $list.append('<tr>' + '<td><a href=\'#\' onClick=\"setID(\'' + room._id +'\')\"><b>' + room.name + '</td>' + '<td>あとでえええええ</td>' + '<td>' + getDate(new Date(room.createdDate)) + '</td>' + '<td><div class="btn-group"><button class=\"btn btn-warning\" onClick=\"editName(\'' + room.name + '\',\''+ room._id +'\')\">EditNAME</button>' + '<button class=\"btn btn-danger\" onClick=\"removeRoom(\''+ room.name + '\',\'' + room._id +'\')\">DeleteRoom</button></div></td>' + '</tr>');
       });
       $list.append('</tbody>');
       // 一覧を表示する

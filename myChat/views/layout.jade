@@ -8,6 +8,7 @@ html
     link(rel='stylesheet', href='stylesheets/bootstrap-theme.css')
     script(src='javascripts/jquery-2.0.0.min.js')
     script(src='javascripts/bootstrap.js')
+    script(src='javascripts/header.js')
   body
     .container
       nav.navbar.navbar-default(role='navigation')
@@ -20,11 +21,22 @@ html
               span.icon-bar
             a.navbar-brand(href='/') 相談するとこ
           #navbar.navbar-collapse.collapse
+            ul.nav.navbar-nav
+              li
+                a#userName
             ul.nav.navbar-nav.navbar-right
+              li.dropdown
+                a.dropdown-toggle(href='#',data-toggle='dropdown') メニュー
+                  span.caret
+                ul.dropdown-menu(role='menu')
+                  li
+                    a(href='./adjust') マイクの調整
+                  li
+                    a(href='https://aocserver.dip.jp:3000') 認証ページへ
+                  li
+                    a(href='./help') HELP
               li
-                a(href='./adjust') マイクの調整
-              li
-                a(href='#') Login
+                a(onclick='changeName()') Login
 
     block content
     block scripts

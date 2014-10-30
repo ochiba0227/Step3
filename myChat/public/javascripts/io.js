@@ -1,5 +1,5 @@
 ﻿// 1.イベントとコールバックの定義
-var socketio = io.connect('https://'+location.host);
+var socketio = io.connect('http://'+location.host);
 socketio.on('connected', function() { enterRoom();});
 socketio.on('publish', function (msg) { addMessage(msg); });
 socketio.on('callfor', function (id) { sendOffer(id); });
@@ -30,7 +30,5 @@ function publishMessage(recogmsg) {
 }
 
 function addMessage (msg) {
-  var domMeg = document.createElement('div');
-  domMeg.innerHTML = new Date().toLocaleTimeString() + ' ' + msg;
-  msgArea.appendChild(domMeg);
+  timeLine.value = new Date().toLocaleTimeString() + ' ' + msg + '\n' + timeLine.value;
 }

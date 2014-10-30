@@ -17,9 +17,16 @@ var room = require('./routes/chatroom');
 var Schema = mongoose.Schema;
 var roomSchema = new Schema({
   name       : String,// 部屋の名前
-  createdDate : {type: Date, default: Date.now}// 作成日時
+  createdDate : {type: Date, default: Date.now},// 作成日時
+  createdBy :  String,// 作成者
+  password : String//パスワード
+});
+var chatLogSchema = new Schema({
+  parentId    : String,// 親リストのID
+  chatLog:String//ログ
 });
 mongoose.model('room', roomSchema);
+mongoose.model('log', chatLogSchema);
 
 var app = express();
 
@@ -107,7 +114,7 @@ app.post('/room', function(req, res) {
       });
     });
   }
-  // ToDoBaseの名前のパラメータがあればMongoDBに保存
+  // 名前パラメータがあればMongoDBに保存
   else if(name) {
     var roomDB = mongoose.model('room');
     var newRoom = new roomDB();
