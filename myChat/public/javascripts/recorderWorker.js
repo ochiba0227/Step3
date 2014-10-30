@@ -1,7 +1,8 @@
-var recLength = 0,
+ï»¿var recLength = 0,
   recBuffersL = [],
   recBuffersR = [],
-  sampleRate;
+  sampleRate,
+  noSoundBuffer;
 
 this.onmessage = function(e){
   switch(e.data.command){
@@ -17,14 +18,22 @@ this.onmessage = function(e){
     case 'getBuffer':
       getBuffer();
       break;
+    case 'setBuffer':
+      setBuffer(e.data.data);
+      break;
     case 'clear':
       clear();
+      break;
+    case 'setNoSound':
+      setNoSound();
       break;
   }
 };
 
 function init(config){
   sampleRate = config.sampleRate;
+  //200ãƒŸãƒªç§’ã®ç©ºç™½åŒºé–“
+  noSoundBuffer = new Float32Array(sampleRate/5);
 }
 
 function record(inputBuffer){
@@ -45,15 +54,25 @@ function exportWAV(type){
   this.postMessage(audioBlob);
 }
 
+function setNoSound(){
+  recBuffersL.push(noSoundBuffer);
+  recLength += noSoundBuffer.length;
+}
+
 function getBuffer() {
   var buffers = [];
   buffers.push( mergeBuffers(recBuffersL, recLength) );
-  buffers.push( mergeBuffers(recBuffersR, recLength) );
+  //buffers.push( mergeBuffers(recBuffersR, recLength) );
   this.postMessage(buffers);
 }
 
+function setBuffer(data) {
+  recBuffersL.push(data);
+  recLength += data.length;
+  this.postMessage('finish');
+}
+
 function clear(){
-console.log("CL!!!!!!!!!!!!!!!");
   recLength = 0;
   recBuffersL = [];
   recBuffersR = [];
@@ -136,7 +155,7 @@ function encodeWAV(samples,rate,isLittleEndian){
   return view;
 }
 
-//ƒTƒ“ƒvƒŠƒ“ƒOƒŒ[ƒg‚ğ‰º‚°‚é‚â‚Â
+//ã‚µãƒ³ãƒ—ãƒªãƒ³ã‚°ãƒ¬ãƒ¼ãƒˆã‚’ä¸‹ã’ã‚‹ã‚„ã¤
 function downsampleBuffer(buffer, rate) {
     if (rate == sampleRate) {
         return buffer;

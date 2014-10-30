@@ -1,0 +1,15 @@
+﻿extends layout
+
+block content
+  #main
+    | 音量の調整
+    br
+    canvas#visual
+    #slider
+    button#saveThresholdButton 閾値を保存
+
+block scripts
+  script(src='/socket.io/socket.io.js')
+  script(src='javascripts/jquery-2.0.0.min.js')
+  script(src='javascripts/jquery-ui.js')
+  script(src='javascripts/adjust.js')

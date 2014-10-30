@@ -1,8 +1,8 @@
-(function(window){
+﻿(function(window){
 
-  var WORKER_PATH = 'recorderWorker.js';
+  var WORKER_PATH = 'bufRecorderWorker.js';
 
-  var Recorder = function(source, cfg){
+  var bufRecorder = function(source, cfg){
     var config = cfg || {};
     var bufferLen = config.bufferLen || 4096;
     this.context = source.context;
@@ -55,25 +55,6 @@
       worker.postMessage({ command: 'getBuffer' })
     }
 
-    this.setBuffer = function(cb, data) {
-      currCallback = cb || config.callback;
-      worker.postMessage({ command: 'setBuffer', data:data });
-    }
-
-    this.exportWAV = function(cb, type){
-      currCallback = cb || config.callback;
-      type = type || config.type || 'audio/wav';
-      if (!currCallback) throw new Error('Callback not set');
-      worker.postMessage({
-        command: 'exportWAV',
-        type: type
-      });
-    }
-
-    this.setNoSound = function(){
-      worker.postMessage({ command: 'setNoSound' });
-    }
-
     worker.onmessage = function(e){
       var blob = e.data;
       currCallback(blob);
@@ -83,16 +64,6 @@
     this.node.connect(this.context.destination);    //this should not be necessary
   };
 
-  Recorder.forceDownload = function(blob, filename){
-    var url = (window.URL || window.webkitURL).createObjectURL(blob);
-    var link = window.document.createElement('a');
-    link.href = url;
-    link.download = filename || 'output.wav';
-    var click = document.createEvent("Event");
-    click.initEvent("click", true, true);
-    link.dispatchEvent(click);
-  }
-
-  window.Recorder = Recorder;
+  window.bufRecorder = bufRecorder;
 
 })(window);

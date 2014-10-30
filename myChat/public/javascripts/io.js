@@ -19,7 +19,7 @@ function enterRoom(){
 
 function publishMessage(recogmsg) {
   if(recogmsg==null){
-    var textInput = document.getElementById('msg_input');
+    var textInput = $('#msg_input')[0];
     var msg = '[' + myName + '] ' + textInput.value;
     textInput.value = '';
   }

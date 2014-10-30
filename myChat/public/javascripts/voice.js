@@ -1,3 +1,5 @@
+$(init);
+
 //getUserMedia()の汎用化
 navigator.getMedia = ( navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia );
 window.AudioContext = window.AudioContext || window.webkitAudioContext || window.mozAudioContext || window.msAudioContext;
@@ -23,6 +25,8 @@ recogSocket.on('return', function(data) {
 //録音用
 var audioContext;
 var recorder;
+//録音開始判定から200ミリ秒前のバッファ
+var recordBuffer;
 //録音中フラグ
 var vRecording=false;
 //サンプリング周波数
@@ -30,9 +34,11 @@ var sampleRate;
 
 //ノイズ対策のローパスフィルタの作成
 var lowpassFilter;
+var lowpassFreq=2000;
 
 //音量検出
 var analyser;
+var fftSize = 1024;
 
 //自身のストリーム．無いとFirefoxは止まる
 var localMediaStream;
@@ -43,53 +49,71 @@ var peer = new Array();
 //他ユーザの音声
 var audio_elem = new Array();
 
-//端末のビデオ、音声ストリームを取得
-navigator.getMedia ({audio:true }, function(stream) {
-  //streamをグローバル変数に
-  localMediaStream=stream;
+//閾値
+var minVol,maxVol,cutVol;
 
-  //録音用設定
-  audioContext = new AudioContext();
-  sampleRate = audioContext.sampleRate;
+function init(){
+  //端末のビデオ、音声ストリームを取得
+  navigator.getMedia ({audio:true }, function(stream) {
+    minVol = localStorage['minVol'];
+    maxVol = localStorage['maxVol'];
+    if(!minVol){
+      minVol=100;
+    }
+    if(!maxVol){
+      maxVol=120;
+    }
+    cutVol=minVol-5;
 
-  var input = audioContext.createMediaStreamSource(stream);
-  lowpassFilter = audioContext.createBiquadFilter();
-  lowpassFilter.type = 0;
-  lowpassFilter.frequency.value = 20000;
+    //streamをグローバル変数に
+    localMediaStream=stream;
 
-  analyser = audioContext.createAnalyser();
-  analyser.fftSize = 1024;
-  analyser.smoothingTimeContant = 0.9;
+    //録音用設定
+    audioContext = new AudioContext();
+    sampleRate = audioContext.sampleRate;
 
-  input.connect(lowpassFilter);
-  recorder = new Recorder(lowpassFilter, { workerPath: 'javascripts/recorderWorker.js' });
-  //認識開始．音声入力が一定値以上で録音を開始する
-  lowpassFilter.connect(analyser);
-  setInterval(inputDetection, 100);
-}, function(err){ //エラー処理
-  console.log('getmedia error!!');
-});
+    var input = audioContext.createMediaStreamSource(stream);
+    lowpassFilter = audioContext.createBiquadFilter();
+    lowpassFilter.type = 0;
+    lowpassFilter.frequency.value = lowpassFreq;
 
+    analyser = audioContext.createAnalyser();
+    analyser.fftSize = fftSize;
+    analyser.smoothingTimeContant = 0.9;
+
+    input.connect(lowpassFilter);
+    recorder = new Recorder(lowpassFilter, { workerPath: 'javascripts/recorderWorker.js' });
+    recordBuffer = new bufRecorder(lowpassFilter, { workerPath: 'javascripts/bufRecorderWorker.js' });
+    recordBuffer && recordBuffer.record();
+    //認識開始．音声入力が一定値以上で録音を開始する
+    lowpassFilter.connect(analyser);
+    setInterval(inputDetection, 100);
+  }, function(err){ //エラー処理
+    console.log('getmedia error!!');
+  });
+}
 function inputDetection(){
   var i=0;
   var sum=0;
   var data = new Uint8Array(256);
   analyser.getByteFrequencyData(data);
   //3000hz以下の音量を足し合わせる
-  while(sampleRate*(i+1)/analyser.fftSize<3000){
+  while(sampleRate*(i+1)/fftSize<lowpassFreq){
     sum+=data[i];
     i++;
   }
+  sum = sum/i;
   //録音中で無いなら
   if(vRecording==false){
-    if(sum/i>=100){
-      recording=true;
+    //閾値の範囲内なら
+    if(sum>=minVol&&sum<=maxVol){
+      vRecording=true;
       captureStart();
 console.log('record_start');
     }
   }
   else{
-    if(sum/i<100){
+    if(sum<=cutVol){
       captureStop();
 console.log('record_end');
     }
@@ -98,20 +122,27 @@ console.log('record_end');
 
 //音声認識開始
 function captureStart(){
-    recorder && recorder.record();
+  recordBuffer && recordBuffer.stop();
+  recordBuffer.getBuffer(function(buffer){
+    recorder.setNoSound();
+    recorder.setBuffer(function(flag){
+      recorder && recorder.record();
+      recordBuffer && recordBuffer.record();
+    },buffer[0]);
+  });
 }
 
 //音声認識停止
 function captureStop(){
-    recorder && recorder.stop();
-    recorder && recorder.exportWAV(wavExported);
+  recorder && recorder.stop();
+  recorder && recorder.exportWAV(wavExported);
 }
 
 //wavblobの生成完了コールバック
 function wavExported(blob) {
-    recorder.clear();
-    recording=false;
-    upload(blob);
+  recorder.clear();
+  vRecording=false;
+  upload(blob);
 }
 
 //認識サーバへwavファイルをアップロードする

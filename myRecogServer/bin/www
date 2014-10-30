@@ -62,7 +62,7 @@ io.sockets.on('connection', function(socket) {
           }
           sentence = sentence.substr(10+recogText.length);
         }
-        fs.unlink(writePath, function (){});
+        //fs.unlink(writePath, function (){});
       });
     }).on('pipe', function (src) {});
     writeStream.write(writeFile,'binary');

@@ -10,10 +10,10 @@ function loaded() {
   $('#sendButton').click(
     // コールバックとしてメソッドを引数にわたす
     function() {
-      $.post('voice', function(res){
-        console.log("removetodo_all:");
-      });
-console.log("removetodo_all:");
+//      $.post('voice', function(res){
+//        console.log("removetodo_all:");
+//      });
+document.location = '/adjust';
     });
   $('#clearAllButton').click(function(){
     // 確認画面を表示
