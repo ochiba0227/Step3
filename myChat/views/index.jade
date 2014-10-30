@@ -2,16 +2,6 @@
 
 block content
   .container
-    .row
-      .col-lg-12
-        h3 新しいチャットルームを作成する
-        .input-group
-          input#listName.form-control(type='text', maxlength='30', placeholder='チャットルーム名を入力')
-          span.input-group-btn
-            button#cleateButton.btn.btn-default(type='button') リストの作成
-    .row
-      .col-lg-12
-        #messageArea(style='display: none;')
     table#roomList.table.table-hover
       thead
         tr
@@ -19,6 +9,41 @@ block content
           th 作成者
           th 作成日
           th actions
+
+  #newRoomModal.modal.fade
+    .modal-dialog
+        .modal-content
+          .modal-header
+            button.close(type='button', data-dismiss='modal', aria-hidden='true') ×
+            h4.modal-title 新しいチャットルームを作成する
+          .modal-body
+            #messageArea(style='display: none;')
+            form
+              .form-group
+                label.control-label(for='listName') 名前：
+                input#listName.form-control(type='text', maxlength='30', placeholder='チャットルーム名を入力')
+              .form-group
+                label.control-label(for='listPass') Password：
+                input#listPass.form-control(type='password', maxlength='30')
+          .modal-footer
+            button.btn.btn-default(type='button', data-dismiss='modal') 閉じる
+            button#cleateButton.btn.btn-primary(type='button') リストの作成
+
+  #passwordCompModal.modal.fade(role='dialog')
+    .modal-dialog
+        .modal-content
+          .modal-header
+            button.close(type='button', data-dismiss='modal', aria-hidden='true') ×
+            h4#passwordCompTitle.modal-title
+          .modal-body
+            #passMessageArea(style='display: none;')
+            form
+              .form-group
+                label.control-label(for='listPass') Password：
+                input#passComp.form-control(type='password', maxlength='30')
+          .modal-footer
+            button.btn.btn-default(type='button', data-dismiss='modal') 閉じる
+            button#passwordCompButton.btn.btn-primary(type='button') パスワードの送信
 
 block scripts
   script(src='/socket.io/socket.io.js')

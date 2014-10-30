@@ -53,17 +53,53 @@ app.get('/room', function(req, res) {
   // urlからqueryを抽出
   var query = require('url').parse(req.url,true).query;
   var id=query.id;
-
+  var getPassID=query.getPassID;
+  var compPassID=query.compPassID;
   // idパラメータがあればそのIDのリストを返す
   if(id){
-    roomBase.findById(id).exec(function(err, todo) {
-      res.send(todo);
+    roomBase.findById(id).exec(function(err, room) {
+      room.password=null;//パスワードを秘匿化
+      res.send(room);
+    });
+  }
+  //getPassIDパラメータがあればパスワードの有無を確認
+  else if(getPassID){
+    roomBase.findById(getPassID).exec(function(err, room) {
+      if(room.password){
+        res.send({pass:true,name:room.name});
+      }
+      else{
+        res.send({pass:false,name:room.name});
+      }
+    });
+  }
+  //compPassIDパラメータがあればパスワードの比較
+  else if(compPassID){
+    roomBase.findById(compPassID).exec(function(err, room) {
+      var inputPass=query.inputPass;
+      //inputPassがあればパスワードの比較
+      if(inputPass){
+        //完全一致
+        if(room.password===inputPass){
+          res.send(true);
+        }
+        else{
+          res.send(false);
+        }
+      }
+      else{
+        //入力が無いのでfalse
+        res.send(false);
+      }
     });
   }
   //なければ全部
   else{
-    roomBase.find({}).exec(function(err, todos) {
-      res.send(todos);
+    roomBase.find({}).exec(function(err, rooms) {
+      for(var i in rooms){
+        i.password=null;//とりあえず単に全部消す鍵アイコン付けたい
+      }
+      res.send(rooms);
     });
   }
 });
@@ -119,6 +155,15 @@ app.post('/room', function(req, res) {
     var roomDB = mongoose.model('room');
     var newRoom = new roomDB();
     newRoom.name = name;
+    var id = req.body.id;
+    var pass = req.body.pass;
+    var userName = req.body.userName;
+    if(pass){
+      newRoom.password = pass;
+    }
+    if(userName){
+      newRoom.createdBy = userName;
+    }
     newRoom.save();
     res.send(true);
   } else {

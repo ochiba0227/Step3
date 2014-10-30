@@ -1,35 +1,74 @@
 ﻿$(loaded);
 
+//新しいチャットルームを作るダイアログ
+var newRoomModal;
+//パスワードの比較を行うダイアログ
+var passwordCompModal;
+var passwordCompTitle;
+
+var text;
+var pass;
+var message;
+var passMessage;
+var passComp;
+
+//入力パスワード
+var inputPass;
+
 function loaded() {
   showList();
+  text = $('#listName');
+  pass = $('#listPass');
+  message = $('#messageArea');
+
+  //パスワードが誤っている場合のメッセージ
+  passMessage = $('#passMessageArea');
+  passMessage.css('color','#FE2E2E');
+  passMessage.text('パスワードが誤っています．');
+
+  passComp = $('#passComp');
   // ボタンをクリックしたときに実行するイベントを設定する
   $('#cleateButton').click(
     // コールバックとしてメソッドを引数にわたす
     function() {
       saveList();
     });
+  $('#passwordCompButton').click(
+    // コールバックとしてメソッドを引数にわたす
+    function() {
+      inputPass = passComp.val();
+      passComp.val('');
+      passwordCompModal.modal('hide');
+    });
+  //チャットルームの追加ボタンを追加
+  var addRoom = $('#addRoom');
+  newRoomModal = $('#newRoomModal');
+  passwordCompModal = $('#passwordCompModal');
+  passwordCompTitle = $('#passwordCompTitle');
+  addRoom.text('新しいチャットルームを作成');
+  addRoom.on('click', function(){
+    newRoomModal.modal('show');
+  });
 }
 
 // フォームに入力された内容をDBに保存する
 function saveList() {
   // 時刻をキーにして入力されたテキストを保存する
-  var text = $('#listName');
-  var message = $('#messageArea');
   //var val = escapeText(text.val());
   //if(checkText(val)){
   var val = text.val();
   if(val){
     // /todobaseにPOSTアクセスする
-    $.post('/room', {name: val}, function(res){
-      console.log(res);
+    $.post('/room', {name: val,pass:pass.val(),userName:myName}, function(res){
+//      console.log(res);
     });
     // テキストボックスを空にする
     text.val('');
-    message.css('color','#000');
-    message.text('新しいチャットルームが作成されました。');
-    message.show();
-    // 再描画
+    pass.val('');
+    newRoomModal.modal('hide');
+   // 再描画
     showList();
+    message.hide();
   }
   else{//エラーがあった場合
     message.css('color','#FE2E2E');
@@ -53,12 +92,74 @@ function showList() {
       // 取得したチャットルームを追加していく
       $list.append('<tbody>');
       $.each(rooms, function(index, room){
-        $list.append('<tr>' + '<td><a href=\'#\' onClick=\"setID(\'' + room._id +'\')\"><b>' + room.name + '</td>' + '<td>あとでえええええ</td>' + '<td>' + getDate(new Date(room.createdDate)) + '</td>' + '<td><div class="btn-group"><button class=\"btn btn-warning\" onClick=\"editName(\'' + room.name + '\',\''+ room._id +'\')\">EditNAME</button>' + '<button class=\"btn btn-danger\" onClick=\"removeRoom(\''+ room.name + '\',\'' + room._id +'\')\">DeleteRoom</button></div></td>' + '</tr>');
+        $list.append('<tr>' + '<td><a href=\'#\' onClick=\"checkPassword(\'' + room._id +'\')\"><b>' + room.name + '</td>' + '<td>' + room.createdBy + '</td>' + '<td>' + getDate(new Date(room.createdDate)) + '</td>' + '<td><div class="btn-group"><button class=\"btn btn-warning\" onClick=\"editName(\'' + room.name + '\',\''+ room._id +'\')\">EditNAME</button>' + '<button class=\"btn btn-danger\" onClick=\"removeRoom(\''+ room.name + '\',\'' + room._id +'\')\">DeleteRoom</button></div></td>' + '</tr>');
       });
       $list.append('</tbody>');
       // 一覧を表示する
       $list.fadeIn();
     });
+  });
+}
+//パスワードの確認
+function confirmPassword(id,inputPass){
+  var result=false;
+  $.ajax({
+    async: false,
+    type: 'GET',
+    url: 'room',
+    data:{
+      compPassID:id,
+      inputPass:inputPass
+    },
+    success: function(val) {
+      //パスワードが正しければtrue
+      if(val){
+          result = true;
+      }
+      else{
+        result = false;
+      }
+    }
+  });
+  return result;
+}
+
+//パスワード付きページか確認，パスワードが無い，正しいパスワードが入力されたらtrue,パスワード間違えたらfalse
+function checkPassword(id){
+  $.ajax({
+    async: false,
+    type: 'GET',
+    url: 'room',
+    data:{
+      getPassID:id
+    },
+    success: function(val) {
+      //パスワードがあった
+      if(val.pass){
+        setMessage(passMessage,false);
+        passwordCompTitle.text(val.name+'のパスワードを入力してください．');
+        passwordCompModal.modal('show');
+        passwordCompModal.on('hidden.bs.modal', function (e) {
+          //文字列が入力された
+          if(inputPass!=null){
+            if(confirmPassword(id,inputPass)==true){
+              setID(id);
+            }
+            else{
+              inputPass = null;
+              setMessage(passMessage,true);
+              passwordCompModal.modal('show');
+            }
+          }
+          //キャンセルされた
+          inputPass = null;
+        });        
+      }
+      else{
+        //パスワードが無かった
+        setID(id);
+      }
+    }
   });
 }
 
@@ -70,12 +171,26 @@ function setID(id){
   document.location = '/chatroom'; 
 }
 
-// todoリストの名前を編集
+function setMessage(message,toFlag){
+  if (message.css('display') == 'block') {
+    //表示されているときに非表示にしたい
+    if(!toFlag){
+      message.hide();
+    }
+  } else {
+    //非表示のときに表示したい
+    if(toFlag){
+      message.show();
+    }
+  }
+}
+
+// チャットルームの名前を編集
 function editName(title,id){
-  var newName=prompt('リスト：\"'+title+'\"の新しい名前を入力して下さい');
+  var newName=prompt('部屋：\"'+title+'\"の新しい名前を入力して下さい');
   if(newName!=null){
     // idに基づいてcontentnum,dueの更新
-    $.post('/todobase', {id:id,title:newName}, function(res){
+    $.post('/room', {id:id,title:newName}, function(res){
       console.log('changetodobase_withname:'+res);
     });
     // ソート順が変更されている場合
@@ -89,16 +204,6 @@ function editName(title,id){
   }
 }
 
-//ToDoリストのチェック状態を表示
-function getToDo(todo){
-  if(todo.contentsNum==0){
-    return('ToDoはありません');
-  }
-  else{
-    return(todo.contentsNum + '個中' + todo.checkedNum + '個がチェック済み<br>～' + getDate(new Date(todo.firstDue)));
-  }
-}
-
 //チャットルームを削除する
 function removeRoom(name,id){
   //確認画面を表示
@@ -106,10 +211,9 @@ function removeRoom(name,id){
     $.post('room', {remove: id}, function(res){
       console.log("removeroom:"+res);
     });
-    var message = $('#messageArea');
-    message.css('color','#FE2E2E');
-    message.text(name+'を削除しました。');
-    message.show();
+//   message.css('color','#FE2E2E');
+//    message.text(name+'を削除しました。');
+//    message.show();
     showList();
   }
 }

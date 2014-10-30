@@ -12,9 +12,15 @@ function init(){
     localStorage.setItem('myName', myName);
   }
   userNameArea=$('#userName');
-  userNameArea.text(myName);
+  userNameArea.text('UserName:'+myName);
 }
 
 function changeName(){
-  alert('未実装です');
+  var newName = prompt('未実装ですが，ユーザ名の変更が可能です．',myName);
+  if(newName!=null&&newName!==myName){
+    localStorage.setItem('myName', newName);
+    myName = newName;
+    userNameArea.text('UserName:'+myName);
+    alert('変更が完了しました');
+  }
 }
