@@ -98,13 +98,12 @@ app.get('/room', function(req, res) {
     roomBase.find({}).exec(function(err, rooms) {
       for(var i in rooms){
         //パスワードがあればhasPasswordにtrueをセット
-        if(i.password){
-          i.hasPassword=true;
+        if(rooms[i].password!=null){
+          rooms[i]={_id:rooms[i]._id,name:rooms[i].name,createdDate : rooms[i].createdDate, createdBy : rooms[i].createdBy, password : null, hasPassword:true};
         }
         else{
-          i.hasPassword=false;
+          rooms[i]={_id:rooms[i]._id,name:rooms[i].name,createdDate : rooms[i].createdDate, createdBy : rooms[i].createdBy, password : null, hasPassword:false};
         }
-        i.password = null;//パスワードの秘匿化
       }
       res.send(rooms);
     });

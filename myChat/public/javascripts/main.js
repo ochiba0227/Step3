@@ -92,7 +92,12 @@ function showList() {
       // 取得したチャットルームを追加していく
       $list.append('<tbody>');
       $.each(rooms, function(index, room){
-        $list.append('<tr>' + '<td><a href=\'#\' onClick=\"checkPassword(\'' + room._id + '\',\'' + 'setID' +'\')\"><b>' + room.name + '</td>' + '<td>' + room.createdBy + '</td>' + '<td>' + getDate(new Date(room.createdDate)) + '</td>' + '<td><div class="btn-group"><button class=\"btn btn-warning\" onClick=\"checkPassword(\'' + room._id + '\',\'' + 'editName' +'\')\">EditNAME</button>' + '<button class=\"btn btn-danger\" onClick=\"checkPassword(\'' + room._id + '\',\'' + 'removeRoom' +'\')\">DeleteRoom</button></div></td>' + '</tr>');
+        if(room.hasPassword){
+          $list.append('<tr>' + '<td><span class=\'glyphicon glyphicon-lock\'></span></td><td><a href=\'#\' onClick=\"checkPassword(\'' + room._id + '\',\'' + 'setID' +'\')\"><b>' + room.name + '</td>' + '<td>' + room.createdBy + '</td>' + '<td>' + getDate(new Date(room.createdDate)) + '</td>' + '<td><div class="btn-group"><button class=\"btn btn-warning\" onClick=\"checkPassword(\'' + room._id + '\',\'' + 'editName' +'\')\">EditNAME</button>' + '<button class=\"btn btn-danger\" onClick=\"checkPassword(\'' + room._id + '\',\'' + 'removeRoom' +'\')\">DeleteRoom</button></div></td>' + '</tr>');
+        }
+        else{
+          $list.append('<tr>' + '<td></td><td><a href=\'#\' onClick=\"checkPassword(\'' + room._id + '\',\'' + 'setID' +'\')\"><b>' + room.name + '</td>' + '<td>' + room.createdBy + '</td>' + '<td>' + getDate(new Date(room.createdDate)) + '</td>' + '<td><div class="btn-group"><button class=\"btn btn-warning\" onClick=\"checkPassword(\'' + room._id + '\',\'' + 'editName' +'\')\">EditNAME</button>' + '<button class=\"btn btn-danger\" onClick=\"checkPassword(\'' + room._id + '\',\'' + 'removeRoom' +'\')\">DeleteRoom</button></div></td>' + '</tr>');
+        }
       });
       $list.append('</tbody>');
       // 一覧を表示する
