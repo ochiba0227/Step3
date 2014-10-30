@@ -2,15 +2,17 @@
 
 block content
   .container
-    .row
-      .col-lg-12
-        h3#roomName
-        textarea#timeline.form-control(readonly='readonly')
-        .input-group
-          input#msg_input.form-control(type='text', placeholder='メッセージを入力')
-          span.input-group-btn
-            button.btn.btn-default(onclick='publishMessage();',type='button') 送信
-        button(onclick='callMe();') ソケット結合
+    h4#roomName
+    textarea#timeline.form-control(readonly='readonly')
+    .input-group
+      input#userNameHolder.form-control(type='text', readonly='readonly')
+      span.input-group-btn
+        //button.btn.btn-default(onclick='callMe();',type='button') 音声チャットの開始
+        button.btn.btn-default(onclick='init();',type='button') 音声チャットの開始
+    .input-group
+      input#msg_input.form-control(type='text', placeholder='メッセージを入力')
+      span.input-group-btn
+        button.btn.btn-default(onclick='publishMessage();',type='button') 送信
 
 block scripts
   link(rel='stylesheet', href='stylesheets/chatroom.css')

@@ -97,7 +97,14 @@ app.get('/room', function(req, res) {
   else{
     roomBase.find({}).exec(function(err, rooms) {
       for(var i in rooms){
-        i.password=null;//とりあえず単に全部消す鍵アイコン付けたい
+        //パスワードがあればhasPasswordにtrueをセット
+        if(i.password){
+          i.hasPassword=true;
+        }
+        else{
+          i.hasPassword=false;
+        }
+        i.password = null;//パスワードの秘匿化
       }
       res.send(rooms);
     });
@@ -122,30 +129,15 @@ app.post('/room', function(req, res) {
     }
     res.send(true);
   }
-  // 未実装！！！！！！！！！！！！！！！！！！！idパラメータがあれば当該IDのリストを変更
+  // idパラメータがあれば当該IDのリストを変更
   else if(id){
-    var todoBase = mongoose.model('room');
-    var firstDue = req.body.limit;
-    var contentsNum = req.body.contentsNum;
-    var checkedNum = req.body.checkedNum;
-    todoBase.findById(id).exec(function(err, todo) {
+    var roomBase = mongoose.model('room');
+    roomBase.findById(id).exec(function(err, room) {
       //タイトルの更新
-      if(title){
-        todo.title=title;
+      if(name){
+        room.name=name;
       }
-      //直近の期限の更新
-      if(firstDue){
-        todo.firstDue=firstDue;
-      }
-      //todoリスト数の更新
-      if(contentsNum&&contentsNum>=0){
-        todo.contentsNum=contentsNum;
-      }
-      //チェックされたtodoリスト数の更新
-      if(checkedNum&&checkedNum>=0){
-        todo.checkedNum=checkedNum;
-      }
-      todo.save(function(){
+      room.save(function(){
         res.send(true);
       });
     });

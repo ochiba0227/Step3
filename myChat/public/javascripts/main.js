@@ -92,7 +92,7 @@ function showList() {
       // 取得したチャットルームを追加していく
       $list.append('<tbody>');
       $.each(rooms, function(index, room){
-        $list.append('<tr>' + '<td><a href=\'#\' onClick=\"checkPassword(\'' + room._id +'\')\"><b>' + room.name + '</td>' + '<td>' + room.createdBy + '</td>' + '<td>' + getDate(new Date(room.createdDate)) + '</td>' + '<td><div class="btn-group"><button class=\"btn btn-warning\" onClick=\"editName(\'' + room.name + '\',\''+ room._id +'\')\">EditNAME</button>' + '<button class=\"btn btn-danger\" onClick=\"removeRoom(\''+ room.name + '\',\'' + room._id +'\')\">DeleteRoom</button></div></td>' + '</tr>');
+        $list.append('<tr>' + '<td><a href=\'#\' onClick=\"checkPassword(\'' + room._id + '\',\'' + 'setID' +'\')\"><b>' + room.name + '</td>' + '<td>' + room.createdBy + '</td>' + '<td>' + getDate(new Date(room.createdDate)) + '</td>' + '<td><div class="btn-group"><button class=\"btn btn-warning\" onClick=\"checkPassword(\'' + room._id + '\',\'' + 'editName' +'\')\">EditNAME</button>' + '<button class=\"btn btn-danger\" onClick=\"checkPassword(\'' + room._id + '\',\'' + 'removeRoom' +'\')\">DeleteRoom</button></div></td>' + '</tr>');
       });
       $list.append('</tbody>');
       // 一覧を表示する
@@ -125,7 +125,7 @@ function confirmPassword(id,inputPass){
 }
 
 //パスワード付きページか確認，パスワードが無い，正しいパスワードが入力されたらtrue,パスワード間違えたらfalse
-function checkPassword(id){
+function checkPassword(id,funcName){
   $.ajax({
     async: false,
     type: 'GET',
@@ -143,7 +143,15 @@ function checkPassword(id){
           //文字列が入力された
           if(inputPass!=null){
             if(confirmPassword(id,inputPass)==true){
-              setID(id);
+              if(funcName.search('setID')!=-1&&funcName.length==5){
+                setID(val.name,id);
+              }
+              else if(funcName.search('removeRoom')!=-1&&funcName.length==10){
+                removeRoom(val.name,id);
+              }
+              else if(funcName.search('editName')!=-1&&funcName.length==8){
+                editName(val.name,id);
+              }
             }
             else{
               inputPass = null;
@@ -157,16 +165,25 @@ function checkPassword(id){
       }
       else{
         //パスワードが無かった
-        setID(id);
+        if(funcName.search('setID')!=-1&&funcName.length==5){
+          setID(val.name,id);
+        }
+        else if(funcName.search('removeRoom')!=-1&&funcName.length==10){
+          removeRoom(val.name,id);
+        }
+        else if(funcName.search('editName')!=-1&&funcName.length==8){
+          editName(val.name,id);
+        }
       }
     }
   });
 }
 
 //クリックされた場合に呼び出すチャットルームをセットする
-function setID(id){
+function setID(name,id){
   //呼び出すリストをローカルストレージlistIDに保存
   localStorage.setItem('roomID', id);
+  localStorage.setItem('roomName', name);
   //ページ遷移
   document.location = '/chatroom'; 
 }
@@ -186,11 +203,11 @@ function setMessage(message,toFlag){
 }
 
 // チャットルームの名前を編集
-function editName(title,id){
-  var newName=prompt('部屋：\"'+title+'\"の新しい名前を入力して下さい');
+function editName(name,id){
+  var newName=prompt('部屋：\"'+name+'\"の新しい名前を入力して下さい');
   if(newName!=null){
     // idに基づいてcontentnum,dueの更新
-    $.post('/room', {id:id,title:newName}, function(res){
+    $.post('/room', {id:id,name:newName}, function(res){
       console.log('changetodobase_withname:'+res);
     });
     // ソート順が変更されている場合
