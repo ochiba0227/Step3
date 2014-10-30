@@ -5,6 +5,11 @@ var myName;
 //ユーザ名を表示するエリア
 var userNameArea;
 
+var newUserName;
+
+var userRenameModal;
+var userRenameForm;
+
 function init(){
   myName = localStorage['myName'];
   if(!myName){
@@ -13,14 +18,26 @@ function init(){
   }
   userNameArea=$('#userName');
   userNameArea.text('UserName:'+myName);
+
+  userRenameModal = $('#userRenameModal');
+  userRenameForm = $('#userRenameForm');
+
+  $('#userRenameButton').click(
+    function() {
+      newUserName = userRenameForm.val();
+      userRenameForm.val('');
+      userRenameModal.modal('hide');
+    });
 }
 
 function changeName(){
-  var newName = prompt('未実装ですが，ユーザ名の変更が可能です．',myName);
-  if(newName!=null&&newName!==myName){
-    localStorage.setItem('myName', newName);
-    myName = newName;
-    userNameArea.text('UserName:'+myName);
-    alert('変更が完了しました');
-  }
+  userRenameModal.modal('show');
+  userRenameModal.on('hidden.bs.modal', function (e) {
+    if(newUserName!=null&&newUserName!==myName){
+      localStorage.setItem('myName', newUserName);
+      myName = newUserName;
+      userNameArea.text('UserName:'+myName);
+      alert('変更が完了しました');
+    }
+  });
 }

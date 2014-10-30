@@ -5,6 +5,15 @@ var newRoomModal;
 //パスワードの比較を行うダイアログ
 var passwordCompModal;
 var passwordCompTitle;
+//部屋名を変更するダイアログ
+var roomRenameModal;
+var roomName;
+var roomRenameForm;
+var newRoomName=null;
+//リストを削除するダイアログ
+var deleteListModal;
+var delTitle=null;
+var delFlag;
 
 var text;
 var pass;
@@ -34,17 +43,32 @@ function loaded() {
       saveList();
     });
   $('#passwordCompButton').click(
-    // コールバックとしてメソッドを引数にわたす
     function() {
       inputPass = passComp.val();
       passComp.val('');
       passwordCompModal.modal('hide');
+    });
+  $('#roomRenameButton').click(
+    function() {
+      newRoomName = roomRenameForm.val();
+      roomRenameForm.val('');
+      roomRenameModal.modal('hide');
+    });
+  $('#deleteListModalButton').click(
+    function() {
+      delFlag=true;
+      deleteListModal.modal('hide');
     });
   //チャットルームの追加ボタンを追加
   var addRoom = $('#addRoom');
   newRoomModal = $('#newRoomModal');
   passwordCompModal = $('#passwordCompModal');
   passwordCompTitle = $('#passwordCompTitle');
+  roomRenameModal = $('#roomRenameModal');
+  roomRenameForm = $('#roomRenameForm');
+  roomName = $('#roomName');
+  deleteListModal = $('#deleteListModal');
+  delTitle = $('#delTitle');
   addRoom.text('新しいチャットルームを作成');
   addRoom.on('click', function(){
     newRoomModal.modal('show');
@@ -82,13 +106,13 @@ function showList() {
   // すでにある要素を削除する
   var $list = $('#roomList');
   $list.fadeOut(function(){
-  var child = $list.children()[1];
-    if(child){
-      //子要素(tbody)があれば削除
-      child.remove();
-    }
     // /roomにGETアクセスする
     $.get('room', function(rooms){
+      var child = $list.children()[1];
+      if(child){
+        //子要素(tbody)があれば再帰的に削除
+        child.remove();
+      }
       // 取得したチャットルームを追加していく
       $list.append('<tbody>');
       $.each(rooms, function(index, room){
@@ -209,35 +233,33 @@ function setMessage(message,toFlag){
 
 // チャットルームの名前を編集
 function editName(name,id){
-  var newName=prompt('部屋：\"'+name+'\"の新しい名前を入力して下さい');
-  if(newName!=null){
-    // idに基づいてcontentnum,dueの更新
-    $.post('/room', {id:id,name:newName}, function(res){
-      console.log('changetodobase_withname:'+res);
-    });
-    // ソート順が変更されている場合
-    var sortBase = localStorage['sortBase'];
-    if(sortBase){
-      showList(sortBase);
+  roomName.text(name+'の名前を変更');
+  roomRenameModal.modal('show');
+  roomRenameModal.on('hidden.bs.modal', function (e) {
+    if(newRoomName!=null&&newRoomName.length>0&&newRoomName!==name){
+      // idに基づいてcontentnum,dueの更新
+      $.post('room', {id:id,name:newRoomName}).done(function(res){
+        console.log('changetodobase_withname:'+res);
+        showList();
+      });
     }
-    else{
-      showList();
-    }
-  }
+  });
 }
 
 //チャットルームを削除する
 function removeRoom(name,id){
   //確認画面を表示
-  if(confirm(name+'を削除しますか？')==true){
-    $.post('room', {remove: id}, function(res){
-      console.log("removeroom:"+res);
-    });
-//   message.css('color','#FE2E2E');
-//    message.text(name+'を削除しました。');
-//    message.show();
-    showList();
-  }
+  delTitle.text(name+'を削除しますか？');
+  deleteListModal.modal('show');
+  delFlag = false;
+  deleteListModal.on('hidden.bs.modal', function (e) {
+    if(delFlag){
+      $.post('room', {remove: id}, function(res){
+        console.log("removeroom:"+res);
+      });
+      showList();
+    }
+  });
 }
 
 //日付データの整形

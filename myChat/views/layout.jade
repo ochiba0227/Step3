@@ -40,5 +40,20 @@ html
               li
                 a(onclick='changeName()') Login
 
+      #userRenameModal.modal.fade(role='dialog')
+        .modal-dialog
+          .modal-content
+            .modal-header
+              button.close(type='button', data-dismiss='modal', aria-hidden='true') ×
+              h4.modal-title ログイン機能は未実装ですがユーザ名を変更できます．
+            .modal-body
+              form
+                .form-group
+                  label.control-label(for='listPass') UserName：
+                  input#userRenameForm.form-control(type='text', maxlength='30',placeholder='ユーザ名を入力')
+            .modal-footer
+              button.btn.btn-default(type='button', data-dismiss='modal') 閉じる
+              button#userRenameButton.btn.btn-primary(type='button') ユーザ名変更
+
     block content
     block scripts

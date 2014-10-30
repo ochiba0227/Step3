@@ -30,6 +30,21 @@ block content
             button.btn.btn-default(type='button', data-dismiss='modal') 閉じる
             button#cleateButton.btn.btn-primary(type='button') リストの作成
 
+  #roomRenameModal.modal.fade(role='dialog')
+    .modal-dialog
+      .modal-content
+        .modal-header
+          button.close(type='button', data-dismiss='modal', aria-hidden='true') ×
+          h4#roomName.modal-title
+        .modal-body
+          form
+            .form-group
+              label.control-label(for='listPass') UserName：
+              input#roomRenameForm.form-control(type='text', maxlength='30',placeholder='部屋名を入力')
+        .modal-footer
+          button.btn.btn-default(type='button', data-dismiss='modal') 閉じる
+          button#roomRenameButton.btn.btn-primary(type='button') 部屋名変更
+
   #passwordCompModal.modal.fade(role='dialog')
     .modal-dialog
         .modal-content
@@ -45,6 +60,16 @@ block content
           .modal-footer
             button.btn.btn-default(type='button', data-dismiss='modal') 閉じる
             button#passwordCompButton.btn.btn-primary(type='button') パスワードの送信
+
+  #deleteListModal.modal.fade(role='dialog')
+    .modal-dialog
+        .modal-content
+          .modal-header
+            button.close(type='button', data-dismiss='modal', aria-hidden='true') ×
+            h4#delTitle.modal-title
+          .modal-footer
+            button.btn.btn-default(type='button', data-dismiss='modal') いいえ
+            button#deleteListModalButton.btn.btn-primary(type='button') はい
 
 block scripts
   script(src='/socket.io/socket.io.js')

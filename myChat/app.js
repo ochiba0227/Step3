@@ -133,6 +133,7 @@ app.post('/room', function(req, res) {
     var roomBase = mongoose.model('room');
     roomBase.findById(id).exec(function(err, room) {
       //タイトルの更新
+console.log(name);
       if(name){
         room.name=name;
       }
