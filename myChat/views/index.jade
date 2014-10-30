@@ -1,20 +1,24 @@
 ﻿extends layout
 
 block content
-  #main
-    | 新しいチャットルームを作成する
-    br
-    #form
-      .left
-        input#listName(type='text', maxlength='30', placeholder='チャットルーム名を入力')
-      .right
-        button#cleateButton.myButton リストの作成
-    #messageArea(style='display: none;')
-    #twocolumnList
-
-  button#sendButton.myButton マイク閾値の調整
+  .container
+    .row
+      .col-lg-12
+        h3 新しいチャットルームを作成する
+        .input-group
+          input#listName.form-control(type='text', maxlength='30', placeholder='チャットルーム名を入力')
+          span.input-group-btn
+            button#cleateButton.btn.btn-default(type='button') リストの作成
+    .row
+      .col-lg-12
+        #messageArea(style='display: none;')
+    table#roomList.table.table-hover
+      thead
+        tr
+          th 部屋名
+          th 作成日
+          th actions
 
 block scripts
   script(src='/socket.io/socket.io.js')
-  script(src='javascripts/jquery-2.0.0.min.js')
   script(src='javascripts/main.js')

@@ -40,16 +40,15 @@ function init(){
   }
   sliderObj=$('#slider');
   sliderObj.slider({
-    values:[ minVol , maxVol ],
-    min:0,
-    max:255,
-    step:1,
-    range:true 
+    min: 0,
+    max: 255,
+    step: 1,
+    range: true,
+    values: [minVol, maxVol]
   });
-
   visualCanvas = $('#visual')[0];
-//  visualCanvas.width = 200;
-//  visualCanvas.height = 25;
+  visualCanvas.width = 256;
+  visualCanvas.height = 25;
   visualContext = visualCanvas.getContext('2d');
   //端末のビデオ、音声ストリームを取得
   navigator.getMedia ({audio:true }, function(stream) {
@@ -91,7 +90,7 @@ function visualUpdate() {
     i++;
   }
   //スライドバーから閾値を取得
-  var values = sliderObj.slider( "option", "values" );
+  var values = sliderObj.slider('option', 'values');
   //音量の平均データを描画。閾値内外で色変化
   sum=sum/i;
   if(sum>=values[0]&&sum<=values[1]){
@@ -104,14 +103,14 @@ function visualUpdate() {
 
   //閾値の線を描画
   visualContext.fillStyle = "rgb(0,255,255)";
-  visualContext.fillRect(values[0], 0, 2, 25);
-  visualContext.fillRect(values[1], 0, 2, 25);
+  visualContext.fillRect(values[0], 0, 1, 25);
+  visualContext.fillRect(values[1], 0, 1, 25);
 }
 
 function saveThreshold() {
   var conf = confirm('閾値を設定します。');
   if ( conf == true ){
-    var values = sliderObj.slider( "option", "values" );
+    var values = sliderObj.slider('option', 'values');
     //閾値をローカルストレージに保存
     localStorage.setItem('minVol', values[0]);
     localStorage.setItem('maxVol', values[1]);

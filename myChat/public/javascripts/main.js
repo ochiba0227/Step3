@@ -15,19 +15,6 @@ function loaded() {
 //      });
 document.location = '/adjust';
     });
-  $('#clearAllButton').click(function(){
-    // 確認画面を表示
-    if(confirm('全チャットルームを削除しますか？')==true){
-      $.post('room', {remove: 'all'}, function(res){
-        console.log("removetodo_all:"+res);
-      });
-      var message = $('#messageArea');
-      message.css('color','#FE2E2E');
-      message.text('全チャットルームを削除しました。');
-      message.show();
-      showList();
-    }
-  });
 }
 
 // フォームに入力された内容をDBに保存する
@@ -46,7 +33,7 @@ function saveList() {
     // テキストボックスを空にする
     text.val('');
     message.css('color','#000');
-    message.text('新しいToDoリストが作成されました。');
+    message.text('新しいチャットルームが作成されました。');
     message.show();
     // 再描画
     showList();
@@ -61,15 +48,21 @@ function saveList() {
 // ToDoBaseの一覧を取得して表示する　デフォルトは日付降順
 function showList() {
   // すでにある要素を削除する
-  var $list = $('#twocolumnList');
+  var $list = $('#roomList');
   $list.fadeOut(function(){
-    $list.children().remove();
+  var child = $list.children()[1];
+    if(child){
+      //子要素(tbody)があれば削除
+      child.remove();
+    }
     // /roomにGETアクセスする
     $.get('room', function(rooms){
       // 取得したチャットルームを追加していく
+      $list.append('<tbody>');
       $.each(rooms, function(index, room){
-        $list.append('<div class=\'sur\'><div class=\'cola\'>' + '<a href=\'#\' onClick=\"setID(\'' + room._id +'\')\"><b>' + room.name + ' 作成日:' + getDate(new Date(room.createdDate)) + ' 部屋ID:' + room._id + '</b></a><button class=\"editButton\" onClick=\"editName(\'' + room.name + '\',\''+ room._id +'\')\">e</button><br>' + '</div>' + '<div class=\'colb\'>' + '<button class=\"delButton\" onClick=\"removeRoom(\''+ room.name + '\',\'' + room._id +'\')\">X</button>' + '</div></div>');
+        $list.append('<tr>' + '<td><a href=\'#\' onClick=\"setID(\'' + room._id +'\')\"><b>' + room.name + '</td>' + '<td>' + getDate(new Date(room.createdDate)) + '</td>' + '<td><div class="btn-group"><button class=\"btn btn-warning\" onClick=\"editName(\'' + room.name + '\',\''+ room._id +'\')\">EditNAME</button>' + '<button class=\"btn btn-danger\" onClick=\"removeRoom(\''+ room.name + '\',\'' + room._id +'\')\">DeleteRoom</button></div></td>' + '</tr>');
       });
+      $list.append('</tbody>');
       // 一覧を表示する
       $list.fadeIn();
     });

@@ -1,15 +1,19 @@
 ﻿extends layout
 
 block content
-  #main
-    | 音量の調整
+  .container
+    h3 マイクの調整
+    例文を読み，発話中の音量がバーの内側に入るように調節してください．
     br
-    canvas#visual
-    #slider
-    button#saveThresholdButton 閾値を保存
+    <例文>マイクの調整をしています．
+    .row
+      canvas#visual
+      //input#slider.span2(type='text')
+      #slider
+      br
+      button#saveThresholdButton.btn.btn-default(type='button') 設定を保存
 
 block scripts
-  script(src='/socket.io/socket.io.js')
-  script(src='javascripts/jquery-2.0.0.min.js')
+  link(rel='stylesheet', href='stylesheets/adjust.css')
   script(src='javascripts/jquery-ui.js')
   script(src='javascripts/adjust.js')
