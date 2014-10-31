@@ -95,9 +95,10 @@ app.get('/room', function(req, res) {
       }
     });
   }
-  //なければ全部
+  //なければソートして全部返す
   else{
-    roomBase.find({}).exec(function(err, rooms) {
+    var sortBy = query.sortBy;
+    roomBase.find({}).sort(sortBy).exec(function(err, rooms) {
       for(var i in rooms){
         //パスワードがあればhasPasswordにtrueをセット
         if(rooms[i].password!=null){

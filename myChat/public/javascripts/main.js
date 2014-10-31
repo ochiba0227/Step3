@@ -21,11 +21,16 @@ var message;
 var passMessage;
 var passComp;
 
+//ソート用
+var sortBase;
+var byRoomName;
+var byUserName;
+var byDate;
+
 //入力パスワード
 var inputPass;
 
 function loaded() {
-  showList();
   text = $('#listName');
   pass = $('#listPass');
   message = $('#messageArea');
@@ -59,6 +64,50 @@ function loaded() {
       delFlag=true;
       deleteListModal.modal('hide');
     });
+  byRoomName=$('#byRoomName');
+  byUserName=$('#byUserName');
+  byDate=$('#byDate');
+  //ソート用
+  byRoomName.click(
+    function() {
+      //クリック後矢印が上向きになったら(昇順ソート)
+      if(changeIcon($(this))){
+        localStorage.setItem('sortBase', 'name');
+        sortBase = 'name';
+      }
+      else{
+        localStorage.setItem('sortBase', '-name');
+        sortBase = '-name';
+      }
+      showList();
+    });
+  byUserName.click(
+    function() {
+      //クリック後矢印が上向きになったら(昇順ソート)
+      if(changeIcon($(this))){
+        localStorage.setItem('sortBase', 'createdBy');
+        sortBase = 'createdBy';
+      }
+      else{
+        localStorage.setItem('sortBase', '-createdBy');
+        sortBase = '-createdBy';
+      }
+      showList();
+    });
+  byDate.click(
+    function() {
+      //クリック後矢印が上向きになったら(昇順ソート)
+      if(changeIcon($(this))){
+        localStorage.setItem('sortBase', 'createdDate');
+        sortBase = 'createdDate';
+      }
+      else{
+        localStorage.setItem('sortBase', '-createdDate');
+        sortBase = '-createdDate';
+      }
+      showList();
+    });
+
   //チャットルームの追加ボタンを追加
   var addRoom = $('#addRoom');
   newRoomModal = $('#newRoomModal');
@@ -73,6 +122,42 @@ function loaded() {
   addRoom.on('click', function(){
     newRoomModal.modal('show');
   });
+
+  // ソート順が変更されている場合
+  sortBase = localStorage['sortBase'];
+  //ソート順が変更されてなければ日付新しい順
+  if(!sortBase){
+    sortBase = '-createdDate';
+  }
+  //ソート状況に応じたアイコンとリストを表示
+  setSortIcon();
+  showList();
+}
+
+function setSortIcon(){
+  switch (sortBase){
+    case '-name':
+      changeIcon(byRoomName);
+      break;
+    case '-createdBy':
+      changeIcon(byUserName);
+      break;
+    case '-createdDate':
+      changeIcon(byDate);
+      break;
+  }
+}
+
+//矢印の上下を変更
+function changeIcon(clickedObj){
+  clickedObj.toggleClass('glyphicon-arrow-up');
+  clickedObj.toggleClass('glyphicon-arrow-down');
+  if(clickedObj.hasClass('glyphicon-arrow-up')){
+    return(true);
+  }
+  else{
+    return(false);
+  }
 }
 
 // フォームに入力された内容をDBに保存する
@@ -107,7 +192,7 @@ function showList() {
   var $list = $('#roomList');
   $list.fadeOut(function(){
     // /roomにGETアクセスする
-    $.get('room', function(rooms){
+    $.get('room',{sortBy:sortBase}, function(rooms){
       var child = $list.children()[1];
       if(child){
         //子要素(tbody)があれば再帰的に削除
@@ -274,4 +359,8 @@ function sortby(obj){
   showList(val);
   // ソート状態をローカルストレージsortBaseに保存
   localStorage.setItem('sortBase', val);
+}
+
+function test(){
+console.log("AAAAAAAAAAAAA");
 }
