@@ -1,4 +1,4 @@
-//getUserMedia()‚Ì”Ä—p‰»
+ï»¿//getUserMedia()ã®æ±ç”¨åŒ–
 navigator.getMedia = ( navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia );
 window.AudioContext = window.AudioContext || window.webkitAudioContext || window.mozAudioContext || window.msAudioContext;
 window.URL = window.URL || window.webkitURL;
@@ -7,51 +7,52 @@ window.RTCPeerConnection = peerConnection;
 window.RTCSessionDescription = window.RTCSessionDescription || window.mozRTCSessionDescription;
 window.RTCIceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate;
 
-// ‰¹º”F¯—p
+// éŸ³å£°èªè­˜ç”¨
 var recogID;
 var recogSocket = io.connect('https://aocserver.dip.jp:3000');
-//‰¹º”F¯ƒT[ƒo‚ÉÚ‘±Š®—¹
+//éŸ³å£°èªè­˜ã‚µãƒ¼ãƒã«æ¥ç¶šå®Œäº†
 recogSocket.on('connected', function(data) {
   recogID=data;
   console.log('connected to recogserver');
+  addMessage('éŸ³å£°èªè­˜ã‚µãƒ¼ãƒã«æ¥ç¶šã—ã¾ã—ãŸï¼',false);
 });
 recogSocket.on('return', function(data) {
   console.log(data);
   publishMessage(data);
 });
 
-//˜^‰¹—p
+//éŒ²éŸ³ç”¨
 var audioContext;
 var recorder;
-//˜^‰¹ŠJn”»’è‚©‚ç200ƒ~ƒŠ•b‘O‚Ìƒoƒbƒtƒ@
+//éŒ²éŸ³é–‹å§‹åˆ¤å®šã‹ã‚‰200ãƒŸãƒªç§’å‰ã®ãƒãƒƒãƒ•ã‚¡
 var recordBuffer;
-//˜^‰¹’†ƒtƒ‰ƒO
+//éŒ²éŸ³ä¸­ãƒ•ãƒ©ã‚°
 var vRecording=false;
-//ƒTƒ“ƒvƒŠƒ“ƒOü”g”
+//ã‚µãƒ³ãƒ—ãƒªãƒ³ã‚°å‘¨æ³¢æ•°
 var sampleRate;
 
-//ƒmƒCƒY‘Îô‚Ìƒ[ƒpƒXƒtƒBƒ‹ƒ^‚Ìì¬
+//ãƒã‚¤ã‚ºå¯¾ç­–ã®ãƒ­ãƒ¼ãƒ‘ã‚¹ãƒ•ã‚£ãƒ«ã‚¿ã®ä½œæˆ
 var lowpassFilter;
 var lowpassFreq=2000;
 
-//‰¹—ÊŒŸo
+//éŸ³é‡æ¤œå‡º
 var analyser;
 var fftSize = 1024;
 
-//©g‚ÌƒXƒgƒŠ[ƒ€D–³‚¢‚ÆFirefox‚Í~‚Ü‚é
+//è‡ªèº«ã®ã‚¹ãƒˆãƒªãƒ¼ãƒ ï¼ç„¡ã„ã¨Firefoxã¯æ­¢ã¾ã‚‹
 var localMediaStream;
 
-//ƒsƒA‚ğì¬
+//ãƒ”ã‚¢ã‚’ä½œæˆ
 var peer = new Array();
 
-//‘¼ƒ†[ƒU‚Ì‰¹º
+//ä»–ãƒ¦ãƒ¼ã‚¶ã®éŸ³å£°
 var audio_elem = new Array();
 
-//è‡’l
+//é–¾å€¤
 var minVol,maxVol,cutVol;
 
 function init(){
-  //’[––‚ÌƒrƒfƒIA‰¹ºƒXƒgƒŠ[ƒ€‚ğæ“¾
+  //ç«¯æœ«ã®éŸ³å£°ã‚¹ãƒˆãƒªãƒ¼ãƒ ã‚’å–å¾—
   navigator.getMedia ({audio:true }, function(stream) {
     minVol = localStorage['minVol'];
     maxVol = localStorage['maxVol'];
@@ -63,10 +64,10 @@ function init(){
     }
     cutVol=minVol-5;
 
-    //stream‚ğƒOƒ[ƒoƒ‹•Ï”‚É
+    //streamã‚’ã‚°ãƒ­ãƒ¼ãƒãƒ«å¤‰æ•°ã«
     localMediaStream=stream;
 
-    //˜^‰¹—pİ’è
+    //éŒ²éŸ³ç”¨è¨­å®š
     audioContext = new AudioContext();
     sampleRate = audioContext.sampleRate;
 
@@ -83,10 +84,15 @@ function init(){
     recorder = new Recorder(lowpassFilter, { workerPath: 'javascripts/recorderWorker.js' });
     recordBuffer = new bufRecorder(lowpassFilter, { workerPath: 'javascripts/bufRecorderWorker.js' });
     recordBuffer && recordBuffer.record();
-    //”F¯ŠJnD‰¹º“ü—Í‚ªˆê’è’lˆÈã‚Å˜^‰¹‚ğŠJn‚·‚é
+    //èªè­˜é–‹å§‹ï¼éŸ³å£°å…¥åŠ›ãŒä¸€å®šå€¤ä»¥ä¸Šã§éŒ²éŸ³ã‚’é–‹å§‹ã™ã‚‹
     lowpassFilter.connect(analyser);
     setInterval(inputDetection, 100);
-  }, function(err){ //ƒGƒ‰[ˆ—
+    //p2pã‚³ãƒã‚¯ã‚·ãƒ§ãƒ³ã‚’å¼µã‚‹
+    callMe();
+    startVoiceChatBtn.attr("disabled", "disabled");
+    stopVoiceChatBtn.removeAttr("disabled");
+    addMessage('éŸ³å£°ãƒãƒ£ãƒƒãƒˆã‚’é–‹å§‹ã—ã¾ã™ï¼',false);
+  }, function(err){ //ã‚¨ãƒ©ãƒ¼å‡¦ç†
     console.log('getmedia error!!');
   });
 }
@@ -95,15 +101,15 @@ function inputDetection(){
   var sum=0;
   var data = new Uint8Array(256);
   analyser.getByteFrequencyData(data);
-  //3000hzˆÈ‰º‚Ì‰¹—Ê‚ğ‘«‚µ‡‚í‚¹‚é
+  //3000hzä»¥ä¸‹ã®éŸ³é‡ã‚’è¶³ã—åˆã‚ã›ã‚‹
   while(sampleRate*(i+1)/fftSize<lowpassFreq){
     sum+=data[i];
     i++;
   }
   sum = sum/i;
-  //˜^‰¹’†‚Å–³‚¢‚È‚ç
+  //éŒ²éŸ³ä¸­ã§ç„¡ã„ãªã‚‰
   if(vRecording==false){
-    //è‡’l‚Ì”ÍˆÍ“à‚È‚ç
+    //é–¾å€¤ã®ç¯„å›²å†…ãªã‚‰
     if(sum>=minVol&&sum<=maxVol){
       vRecording=true;
       captureStart();
@@ -118,7 +124,7 @@ console.log('record_end');
   }
 }
 
-//‰¹º”F¯ŠJn
+//éŸ³å£°èªè­˜é–‹å§‹
 function captureStart(){
   recordBuffer && recordBuffer.stop();
   recordBuffer.getBuffer(function(buffer){
@@ -130,20 +136,20 @@ function captureStart(){
   });
 }
 
-//‰¹º”F¯’â~
+//éŸ³å£°èªè­˜åœæ­¢
 function captureStop(){
   recorder && recorder.stop();
   recorder && recorder.exportWAV(wavExported);
 }
 
-//wavblob‚Ì¶¬Š®—¹ƒR[ƒ‹ƒoƒbƒN
+//wavblobã®ç”Ÿæˆå®Œäº†ã‚³ãƒ¼ãƒ«ãƒãƒƒã‚¯
 function wavExported(blob) {
   recorder.clear();
   vRecording=false;
   upload(blob);
 }
 
-//”F¯ƒT[ƒo‚Öwavƒtƒ@ƒCƒ‹‚ğƒAƒbƒvƒ[ƒh‚·‚é
+//èªè­˜ã‚µãƒ¼ãƒã¸wavãƒ•ã‚¡ã‚¤ãƒ«ã‚’ã‚¢ãƒƒãƒ—ãƒ­ãƒ¼ãƒ‰ã™ã‚‹
 function upload(file){
   var fileReader = new FileReader();
   var send_file = file;
@@ -158,14 +164,14 @@ function upload(file){
   }
 }
 
-//ŠeƒsƒA‚ÉÚ‘±—v‹‚ğ“Š‚°‚é‚æ‚¤—v‹
+//å„ãƒ”ã‚¢ã«æ¥ç¶šè¦æ±‚ã‚’æŠ•ã’ã‚‹ã‚ˆã†è¦æ±‚
 function callMe(){
   socketio.emit('callme',{ room: currentRoom });
 }
 
-//Ú‘±—v‹‚ğ“Š‚°‚é
+//æ¥ç¶šè¦æ±‚ã‚’æŠ•ã’ã‚‹
 function sendOffer(id){
-  //ƒsƒA‚Ìİ’è
+  //ãƒ”ã‚¢ã®è¨­å®š
   setPeerData(id);
 
   peer[id].createOffer(function(desc) {
@@ -176,20 +182,20 @@ console.log(peer);
     peer[id].setLocalDescription(desc);
     socketio.emit('offer',{ room: currentRoom, desc: desc, id:id });
   }, function(){
-    //ƒXƒgƒŠ[ƒ€‚ª–³‚¢ê‡(óM‚Ì‚İ‚ğs‚¤ê‡)
-    console.log('receive only');
-    socketio.emit('callme',{ room: currentRoom });
+    //ã‚¹ãƒˆãƒªãƒ¼ãƒ ãŒç„¡ã„å ´åˆ(å—ä¿¡ã®ã¿ã‚’è¡Œã†å ´åˆ)
+    //console.log('receive only');
+    //socketio.emit('callme',{ room: currentRoom });
   });
 }
 
-//Ú‘±—v‹‚ğóM‚µ‚½‚ç•Ô–‚·‚é
+//æ¥ç¶šè¦æ±‚ã‚’å—ä¿¡ã—ãŸã‚‰è¿”äº‹ã™ã‚‹
 function offerReceived(offer) {
 console.log('offerrec');
 console.log(offer.id);
-  //ƒsƒA‚Ìİ’è
+  //ãƒ”ã‚¢ã®è¨­å®š
   setPeerData(offer.id);
 
-  //offer.id‚ª¦‚·ƒsƒA‚Éoffer.desk‚ğİ’è
+  //offer.idãŒç¤ºã™ãƒ”ã‚¢ã«offer.deskã‚’è¨­å®š
   if(offer.desc!=null){
     peer[offer.id].setRemoteDescription(new RTCSessionDescription(offer.desc));
   }
@@ -205,7 +211,7 @@ console.log(answer);
   }, function(){console.log('error:createAns');});
 }
 
-//Ú‘±—v‹‚É‘Î‚µ‚Ä“š‚¦‚ª•Ô‚Á‚Ä‚«‚½‚ç‘Šè‚ÌƒXƒgƒŠ[ƒ€‚ğƒsƒA‚ÉƒZƒbƒg
+//æ¥ç¶šè¦æ±‚ã«å¯¾ã—ã¦ç­”ãˆãŒè¿”ã£ã¦ããŸã‚‰ç›¸æ‰‹ã®ã‚¹ãƒˆãƒªãƒ¼ãƒ ã‚’ãƒ”ã‚¢ã«ã‚»ãƒƒãƒˆ
 function answerReceived(answer) {
 console.log('ansrcv');
 console.log(answer.id);
@@ -215,7 +221,7 @@ console.log(peer[answer.id]);
 }
 
 function iceCandidateReceived(message) {
-  // ƒIƒuƒWƒFƒNƒg‚ğicecandidateŒ^‚É•ÏŠ·
+  // ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’icecandidateå‹ã«å¤‰æ›
   var candidate = new RTCIceCandidate(message.icecandy);
 console.log('iceCandidateReceived');
 console.log(peer);
@@ -228,14 +234,12 @@ function error(){
 }
 
 function setPeerData(id){
-  // ƒsƒA‚Ìì¬@ˆê“x‚¾‚¯I
-  if(peer[id]==null){
     peer[id] = new peerConnection({iceServers: [{url: "stun:stun.l.google.com:19302"}]});
-    //©g‚ÌƒXƒgƒŠ[ƒ€‚ğP2PƒRƒlƒNƒVƒ‡ƒ“‚É’Ç‰Á
+    //è‡ªèº«ã®ã‚¹ãƒˆãƒªãƒ¼ãƒ ã‚’P2Pã‚³ãƒã‚¯ã‚·ãƒ§ãƒ³ã«è¿½åŠ 
     if(localMediaStream!=null){
       peer[id].addStream(localMediaStream);
     }
-    //©g‚ÌƒXƒgƒŠ[ƒ€‚Ì‘—M
+    //è‡ªèº«ã®ã‚¹ãƒˆãƒªãƒ¼ãƒ ã®é€ä¿¡
     peer[id].onicecandidate = function(evt) {
         if (evt.candidate) {
             socketio.emit('icecandy',{ room: currentRoom, icecandy: new RTCIceCandidate(evt.candidate), id:id});
@@ -245,21 +249,42 @@ function setPeerData(id){
         }
     }
 
-    //‘¼ƒ†[ƒU‚ÌƒXƒgƒŠ[ƒ€‚Ì€”õ‚ª‚Å‚«‚½‚Æ‚«
+    //ä»–ãƒ¦ãƒ¼ã‚¶ã®ã‚¹ãƒˆãƒªãƒ¼ãƒ ã®æº–å‚™ãŒã§ããŸã¨ã
     peer[id].onaddstream=function(stream){
   console.log('onaddstream');
   console.log(stream.stream);
-  //remotestream‚ğconnect‚·‚é‚±‚Æ‚ª‚Å‚«‚È‚¢©chrome‚ÌƒoƒO
+  //remotestreamã‚’connectã™ã‚‹ã“ã¨ãŒã§ããªã„â†chromeã®ãƒã‚°
   //    var mediaStreamSource = context.createMediaStreamSource(stream.stream);
   //    mediaStreamSource.connect(context.destination);
-  //audioelement‚ğì‚Á‚Ä‚»‚±‚ÉƒXƒgƒŠ[ƒ€‚ğ“Š‚°‚éê‡‚ÍÄ¶‚³‚ê‚é
+  //audioelementã‚’ä½œã£ã¦ãã“ã«ã‚¹ãƒˆãƒªãƒ¼ãƒ ã‚’æŠ•ã’ã‚‹å ´åˆã¯å†ç”Ÿã•ã‚Œã‚‹
       audio_elem[id] = document.createElement("audio");
       audio_elem[id].src = URL.createObjectURL(stream.stream);
       audio_elem[id].play();
   console.log(audio_elem);
     }
+}
+
+//ãƒ¦ãƒ¼ã‚¶ã®åˆ‡æ–­æ™‚
+function peerDisconnect(data){
+  $(audio_elem[data.id]).remove();
+  audio_elem[data.id]=null;
+  addMessage(data.name+'ã•ã‚“ãŒéŸ³å£°ãƒãƒ£ãƒƒãƒˆã‚’çµ‚äº†ã—ã¾ã—ãŸï¼',false);
+}
+
+function stopVoiceChat(){
+  recordBuffer && recordBuffer.stop();
+  recordBuffer.clear();
+  recordBuffer = null;
+  localMediaStream.stop();
+  for(var i in audio_elem){
+    $(audio_elem[i]).remove();
+    audio_elem[i]=null;
+    peer[i].close();
+    peer[i]=null;
   }
-  else{
-     console.log('peer is already created');
-  }
+
+  socketio.emit('peerdisconnect', { room: currentRoom, name: myName });
+  startVoiceChatBtn.removeAttr("disabled");
+  stopVoiceChatBtn.attr("disabled", "disabled");
+  addMessage('éŸ³å£°ãƒãƒ£ãƒƒãƒˆã‚’çµ‚äº†ã—ã¾ã™ï¼',false);
 }

@@ -1,0 +1,120 @@
+﻿extends layout
+
+block content
+  .container
+    .bs-example.bs-example-tabs
+      ul#myTab.nav.nav-tabs(role='tablist')
+          li.active(role='presentation')
+            a#home-tab(href='#home', role='tab', data-toggle='tab', aria-controls='home', aria-expanded='true') はじめに
+          li(role='presentation')
+            a#header-tab(aria-expanded='false', href='#header', role='tab', data-toggle='tab', aria-controls='profile') ヘッダ
+          li(role='presentation')
+            a#top-tab(aria-expanded='false', href='#top', role='tab', data-toggle='tab', aria-controls='profile') トップページ
+          li(role='presentation')
+            a#chatroom-tab(aria-expanded='false', href='#chatroom', role='tab', data-toggle='tab', aria-controls='profile') チャットルーム
+          li#certli(role='presentation')
+            a#cert-tab(aria-expanded='false', href='#cert', role='tab', data-toggle='tab', aria-controls='profile') 証明書情報
+        #myTabContent.tab-content
+          #home.tab-pane.fade.active.in(role='tabpanel', aria-labelledby='home-tab')
+            p
+              | 音声認識を利用したディクテーションチャットサイト．音声のテキスト化には<a href='http://julius.sourceforge.jp/'>大語彙連続音声認識エンジン Julius</a>を使用させていただいています．自宅サーバと連携しているため，メニュー→認証ページへまたは<a href='https://aocserver.dip.jp:3000'>こちら</a>で認証ページへ行きSSL証明書を許可するよう設定してください．証明書情報は<a id='profile-tab',aria-expanded='false', href='#cert', data-toggle='tab', aria-controls='profile', onClick='certActive();'>こちら</a>です．
+          #header.tab-pane.fade(role='tabpanel', aria-labelledby='profile-tab')
+            p
+              img.img-responsive(src='images/headeropen.png' alt='HeaderOpen')
+              | ヘッダの説明
+              ul
+                li ページタイトル
+                |当サイトの名前が表示されています．クリックするとトップページへ遷移します．
+                li UserName
+                |現在のユーザ名が表示されています．現在，Loginボタンをクリックすることで名前の変更が可能です．
+                li メニュー
+                  ul
+                    li マイクの調整
+                    |クリックするとマイクの調整画面へ遷移します．
+                    li 認証ページへ
+                    |クリックするとSSLの認証ページへ遷移します．
+                    li HELP
+                    |クリックするとこのページへ遷移します．
+                li Login
+                |ログイン機能が未実装なので，クリックするとユーザ名を変更するダイアログが表示されます．
+          #top.tab-pane.fade(role='tabpanel', aria-labelledby='profile-tab')
+            p
+              img.img-responsive(src='images/top.png' alt='TopPage')
+              | トップページの説明．
+              ul
+                li 新しいチャットルームを作成
+                  ul
+                    li トップページのみに表示されます．クリックすることでダイアログが表示され，新しいチャットルームを作成することができます．
+              ul
+                li Lock
+                  ul
+                    li Lockに鍵マークの付いたチャットルームはパスワードを入力しないと"入室","名前の編集","部屋の削除"が行えません．それ以外のページではこれらの処理を誰でも行うことができます．
+                li 部屋名
+                  ul
+                    li 部屋名をクリックすることで"入室"することができます．また，一番上の行の矢印をクリックすることで昇順，降順にソートすることが可能です．
+                li 作成者
+                  ul
+                    li 作成者名が記述されています．また，一番上の行の矢印をクリックすることで昇順，降順にソートすることが可能です．
+                li 作成日
+                  ul
+                    li 作成日が表示されています．また，一番上の行の矢印をクリックすることで昇順，降順にソートすることが可能です．
+                li actions
+                  ul
+                    li EditName
+                    |部屋名を編集することができます．鍵つきの場合パスワードが必要になります．
+                    li DeleteRoom
+                    |部屋を削除することができます．鍵つきの場合パスワードが必要になります．
+          #chatroom.tab-pane.fade(role='tabpanel', aria-labelledby='profile-tab')
+            p
+              | チャットルームの説明．表示例は下にあります．
+              ul
+               li 表示部分
+               |テキストチャットの表示部分にはチャットの入力文書や音声の認識結果だけでなくシステムメッセージも表示されます．入室後に"音声認識サーバに接続しました．"と表示されなければ，<a href='https://aocserver.dip.jp:3000'>こちら</a>で認証ページへ行きSSL証明書を許可するよう設定してください．証明書情報は<a id='profile-tab',aria-expanded='false', href='#cert', data-toggle='tab', aria-controls='profile', onClick='certActive();'>こちら</a>です．サーバへアクセスできない場合は，お手数ですがご一報ください．
+               li 音声チャットの開始ボタン
+               |クリックするとWebRTCによるP2Pコネクションを張るように要求します．また，同時に音声認識サーバへアクセスし，ディクテーションを開始します．
+               li 音声チャットの停止ボタン
+               |クリックすると音声チャットを停止し，P2Pコネクションを削除します．また，同時に音声認識も停止します．
+               li メッセージ入力フォーム
+               |メッセージを入力できます．
+               li 送信ボタン
+               |メッセージを送信できます．送信したテキストは最上部に追加されます．
+              img.img-responsive(src='images/chatroom.png' alt='chatroom')
+          #cert.tab-pane.fade(role='cert', aria-labelledby='profile-tab')
+            p
+              | 証明書情報は以下の通りです．
+              pre
+                |Certificate:
+                |Data:
+                |    Version: 1 (0x0)
+                |    Serial Number: 16723439568869888228 (0xe81597aeed3390e4)
+                |Signature Algorithm: sha1WithRSAEncryption
+                |    Issuer: C=JP, ST=Nara, L=Ikoma, O=Step3, CN=Shigeya MORISHITA
+                |    Validity
+                |        Not Before: Oct 27 14:58:26 2014 GMT
+                |        Not After : Oct 27 14:58:26 2015 GMT
+                |    Subject: C=JP, ST=Nara, L=Ikoma, O=Step3, CN=Shigeya MORISHITA
+                |    Subject Public Key Info:
+                |        Public Key Algorithm: rsaEncryption
+                |            Public-Key: (1024 bit)
+                |            Modulus:
+                |                00:96:25:dc:2c:7f:61:c5:65:c8:8c:8b:2a:83:64:
+                |                31:2a:58:39:58:5b:1d:5b:e3:22:b6:49:8b:14:d1:
+                |                2b:eb:cf:99:7c:a0:67:6a:b1:a1:c3:3e:f9:96:5b:
+                |                85:44:6c:19:de:c4:9c:22:bf:37:c2:d3:39:f2:8c:
+                |                64:7c:4a:84:6f:d1:ae:2b:c3:9b:f4:36:0d:07:d4:
+                |                4e:32:74:ec:cc:b1:27:1e:c4:e8:9c:d4:da:9b:5f:
+                |                3f:a5:74:45:d0:29:c2:4f:a4:57:be:17:64:45:0e:
+                |                76:54:4b:50:9b:64:ef:27:cf:ec:2c:78:59:e5:68:
+                |                1c:9c:83:e9:4d:e0:56:2e:79
+                |            Exponent: 65537 (0x10001)
+                |Signature Algorithm: sha1WithRSAEncryption
+                |     8a:fa:c0:61:c6:b3:fb:e5:f6:77:a9:ac:6f:6b:ac:00:c6:5a:
+                |     e6:bf:0e:74:af:5a:a1:1d:ed:3e:4c:61:40:ed:12:08:b3:84:
+                |     86:0e:21:f3:21:3f:cf:8f:92:63:89:0a:11:00:7c:4a:aa:d8:
+                |     6f:ba:bb:94:2a:4d:0a:18:0f:73:6d:42:4d:aa:4a:54:e9:25:
+                |     4c:74:e9:e5:28:5d:cd:38:96:ca:88:bc:8d:ab:13:4b:c6:a0:
+                |     01:b4:54:68:4b:8f:19:33:9e:29:94:86:62:ea:53:d9:18:81:
+                |     c9:55:cf:47:a0:99:b0:b8:14:40:28:83:ee:25:9a:46:3a:53:
+                |     1c:74
+block scripts
+  script(src='javascripts/help.js')

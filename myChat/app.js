@@ -12,6 +12,7 @@ var bodyParser = require('body-parser');
 var routes = require('./routes/index');
 var adjust = require('./routes/adjust');
 var room = require('./routes/chatroom');
+var help = require('./routes/help');
 
 // チャットルームのスキーマを定義する
 var Schema = mongoose.Schema;
@@ -48,6 +49,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', routes);
 app.use('/adjust', adjust);
 app.use('/chatroom', room);
+app.use('/help', help);
 
 // /roomにGETアクセスしたとき、チャットルームを取得・検索するAPI
 app.get('/room', function(req, res) {

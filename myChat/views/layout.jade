@@ -9,6 +9,7 @@ html
     script(src='javascripts/jquery-2.0.0.min.js')
     script(src='javascripts/bootstrap.js')
     script(src='javascripts/header.js')
+    script(src='javascripts/chktext.js')
   body
     .container
       nav.navbar.navbar-default(role='navigation')
@@ -47,6 +48,7 @@ html
               button.close(type='button', data-dismiss='modal', aria-hidden='true') ×
               h4.modal-title ログイン機能は未実装ですがユーザ名を変更できます．
             .modal-body
+              #userRenameMessageArea(style='display: none;')
               form
                 .form-group
                   label.control-label(for='listPass') UserName：

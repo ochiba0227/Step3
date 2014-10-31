@@ -49,13 +49,13 @@ function loaded() {
     });
   $('#passwordCompButton').click(
     function() {
-      inputPass = passComp.val();
+      inputPass = escapeText(passComp.val());
       passComp.val('');
       passwordCompModal.modal('hide');
     });
   $('#roomRenameButton').click(
     function() {
-      newRoomName = roomRenameForm.val();
+      newRoomName = escapeText(roomRenameForm.val());
       roomRenameForm.val('');
       roomRenameModal.modal('hide');
     });
@@ -163,12 +163,12 @@ function changeIcon(clickedObj){
 // フォームに入力された内容をDBに保存する
 function saveList() {
   // 時刻をキーにして入力されたテキストを保存する
-  //var val = escapeText(text.val());
+  var val = escapeText(text.val());
+  var valPass = escapeText(pass.val());
   //if(checkText(val)){
-  var val = text.val();
   if(val){
     // /todobaseにPOSTアクセスする
-    $.post('/room', {name: val,pass:pass.val(),userName:myName}, function(res){
+    $.post('/room', {name: val,pass:valPass,userName:myName}, function(res){
 //      console.log(res);
     });
     // テキストボックスを空にする
@@ -359,8 +359,4 @@ function sortby(obj){
   showList(val);
   // ソート状態をローカルストレージsortBaseに保存
   localStorage.setItem('sortBase', val);
-}
-
-function test(){
-console.log("AAAAAAAAAAAAA");
 }

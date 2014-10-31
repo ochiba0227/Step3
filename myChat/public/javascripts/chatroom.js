@@ -5,12 +5,17 @@ var roomName;
 var timeLine = $('#timeline')[0];
 var userNameHolder;
 
+//ボイスチャット開始ボタン
+var startVoiceChatBtn;
+//ボイスチャット停止ボタン
+var stopVoiceChatBtn;
+
 function loaded() {
   roomName = $('#roomName');
   roomName.text(localStorage['roomName']);
   currentRoom = localStorage['roomID'];
   timeLine.value='';
-  addMessage('貴方は' + myName + 'として入室しました');
+  addMessage('貴方は' + myName + 'として入室しました',false);
   //タイムラインの大きさを画面の70%と指定
   var windowY = window.innerHeight ? window.innerHeight: $(window).height();
   $('#timeline').height(windowY*0.7);
@@ -27,5 +32,9 @@ function loaded() {
       }
     }
   });
+  startVoiceChatBtn = $('#startVoiceChatBtn');
+  startVoiceChatBtn.removeAttr('disabled');
+  stopVoiceChatBtn = $('#stopVoiceChatBtn');
+  stopVoiceChatBtn.attr('disabled', 'disabled');
   start(myName);
 }

@@ -13,8 +13,6 @@ var server = app.listen(app.get('port'), function() {
 var socketIO = require('socket.io');
 // クライアントの接続を待つ(IPアドレスとポート番号を結びつけます)
 var io = socketIO.listen(server);
-//cors
-//io.set('origins', 'https://aocserver.dip.jp:3000');
 // クライアントが接続してきたときの処理
 var chat = io.sockets.on('connection', function(socket) {
   console.log('connected\n'+'IP Addr:'+socket.handshake.address+'\n'+'Time:'+socket.handshake.time+'\n');
@@ -69,9 +67,15 @@ var chat = io.sockets.on('connection', function(socket) {
     chat.to(data.id).emit('icecandy', {icecandy:data.icecandy, id:socket.id});
   });
 
-  // クライアントが切断したときの処理
-  socket.on('disconnect', function(){
+  // クライアントが音声チャット終了したときの処理
+  socket.on('peerdisconnect', function(data){
     console.log('disconnected\n'+'ID:'+socket.id+'\n'+'IP Addr:'+socket.handshake.address+'\n'+'Time:'+socket.handshake.time+'\n');
-    //chat.emit('disconnect', socket.id);
+    socket.broadcast.to(data.room).emit('peerdisconnect', {id:socket.id,name:data.name});
+  });
+
+  // クライアントが切断したときの処理
+  socket.on('disconnect', function(data){
+    console.log('disconnected\n'+'ID:'+socket.id+'\n'+'IP Addr:'+socket.handshake.address+'\n'+'Time:'+socket.handshake.time+'\n');
+    //socket.broadcast.to(data.room).emit('disconnect', {id:socket.id,name:data.name});
   });
 });

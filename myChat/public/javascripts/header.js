@@ -9,6 +9,8 @@ var newUserName;
 
 var userRenameModal;
 var userRenameForm;
+var userRenameFlag;
+var userRenameMessageArea;
 
 function init(){
   myName = localStorage['myName'];
@@ -24,16 +26,30 @@ function init(){
 
   $('#userRenameButton').click(
     function() {
+      userRenameFlag=true;
       newUserName = userRenameForm.val();
       userRenameForm.val('');
       userRenameModal.modal('hide');
     });
+  //入力が誤っている場合のメッセージ
+  userRenameMessageArea = $('#userRenameMessageArea');
+  userRenameMessageArea.css('color','#FE2E2E');
+  userRenameMessageArea.text('1文字以上で入力してください.');
 }
 
 function changeName(){
+  userRenameFlag=false;
   userRenameModal.modal('show');
+  userRenameMessageArea.hide();
   userRenameModal.on('hidden.bs.modal', function (e) {
-    if(newUserName!=null&&newUserName!==myName){
+    if(userRenameFlag&&newUserName!=null&&newUserName!==myName){
+      newUserName=escapeText(newUserName);
+      if(newUserName.length<1){
+        userRenameFlag=false;
+        userRenameMessageArea.show();
+        userRenameModal.modal('show');
+        return;
+      }
       localStorage.setItem('myName', newUserName);
       myName = newUserName;
       userNameArea.text('UserName:'+myName);

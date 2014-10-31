@@ -7,8 +7,8 @@ block content
     .input-group
       input#userNameHolder.form-control(type='text', readonly='readonly')
       span.input-group-btn
-        //button.btn.btn-default(onclick='callMe();',type='button') 音声チャットの開始
-        button.btn.btn-default(onclick='init();',type='button') 音声チャットの開始
+        button#startVoiceChatBtn.btn.btn-default(onclick='init();',type='button') 音声チャットの開始
+        button#stopVoiceChatBtn.btn.btn-default(onclick='stopVoiceChat();',type='button') 音声チャットの停止
     .input-group
       input#msg_input.form-control(type='text', placeholder='メッセージを入力')
       span.input-group-btn
