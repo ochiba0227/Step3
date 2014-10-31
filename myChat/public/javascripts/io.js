@@ -21,14 +21,22 @@ function publishMessage(recogmsg) {
   if(recogmsg==null){
     var textInput = $('#msg_input')[0];
     var msg = '[' + myName + '] ' + textInput.value;
+    recogmsg = textInput.value;
     textInput.value = '';
   }
   else{
     var msg = '[' + myName + '] ' + recogmsg;
   }
   socketio.emit('publish', { room: currentRoom, value: msg });
+  $.post('/log', {parentID: currentRoom,userName:myName, msgData:recogmsg}, function(res){
+  });
 }
 
-function addMessage (msg) {
-  timeLine.value = new Date().toLocaleTimeString() + ' ' + msg + '\n' + timeLine.value;
+function addMessage (msg,initflag) {
+  if(initflag){
+    timeLine.value = msg + timeLine.value;
+  }
+  else{
+    timeLine.value = new Date().toLocaleTimeString() + ' ' + msg + '\n' + timeLine.value;
+  }
 }

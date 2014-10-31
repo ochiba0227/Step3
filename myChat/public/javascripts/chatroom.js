@@ -20,5 +20,12 @@ function loaded() {
   userNameArea.change( function () {
     userNameHolder.val(userNameArea.text());
   });
+  $.get('/log', {parentID: currentRoom}, function(res){
+    if(res!=false){
+      for(var i in res){
+        addMessage (new Date(res[i].date).toLocaleTimeString() + ' ' + '[' + res[i].userName + '] ' + res[i].logText + '\n', true);
+      }
+    }
+  });
   start(myName);
 }

@@ -23,7 +23,9 @@ var roomSchema = new Schema({
 });
 var chatLogSchema = new Schema({
   parentId    : String,// 親リストのID
-  chatLog:String//ログ
+  userName: String,//ログ
+  logText:String ,
+  date: Date 
 });
 mongoose.model('room', roomSchema);
 mongoose.model('log', chatLogSchema);
@@ -118,13 +120,21 @@ app.post('/room', function(req, res) {
   // removeパラメータがあれば当該IDを削除 allが与えられていれば全削除
   if(remove) {
     var roomBase = mongoose.model('room');
+    var logBase = mongoose.model('log');
     //全削除パターン
     if(remove=='all'){
       roomBase.remove().exec();
+      logBase.remove().exec();
     }
     //単一IDの削除
     else{
       roomBase.findByIdAndRemove(remove).exec();
+      //ログも削除
+      logBase.find({parentId:remove},function(err, logDBs) {
+        for(var i in logDBs){
+          logBase.findByIdAndRemove(logDBs[i]._id).exec();
+        }
+      });
     }
     res.send(true);
   }
@@ -133,7 +143,6 @@ app.post('/room', function(req, res) {
     var roomBase = mongoose.model('room');
     roomBase.findById(id).exec(function(err, room) {
       //タイトルの更新
-console.log(name);
       if(name){
         room.name=name;
       }
@@ -163,6 +172,55 @@ console.log(name);
   }
 });
 
+// /logにGETアクセスしたとき、ログを取得・検索するAPI
+app.get('/log', function(req, res) {
+  var logBase = mongoose.model('log');
+  // urlからqueryを抽出
+  var query = require('url').parse(req.url,true).query;
+  var parentID=query.parentID;
+  // idパラメータがあればそのIDのリストを返す
+  if(parentID){
+    logBase.find({parentId:parentID}).exec(function(err, log) {
+      res.send(log);
+    });
+  }
+  //何のパラメータも無い
+  else {
+    res.send(false);
+  }
+});
+
+// /logにPOSTアクセスしたとき、チャットログを追加・変更・削除するAPI
+app.post('/log', function(req, res) {
+  var name = req.body.name;
+  var parentID = req.body.parentID;
+  var id = req.body.id;
+  // parentIDパラメータがあれば当該IDのリストに追加
+  if(parentID){
+    var logBase = mongoose.model('log');
+    logBase.find({parentId:parentID},function(err, logDB) {
+      //中身が無い場合
+      logDB = new logBase();
+      logDB.parentId = parentID;
+      logDB.date=new Date;
+      var userName = req.body.userName;
+      var log = req.body.msgData;
+      if(userName){
+        logDB.userName = userName;
+      }
+      if(log){
+        logDB.logText = log;
+      }
+      logDB.save(function(){
+        res.send(true);
+      });
+    });
+  }
+  //何のパラメータも無い
+  else {
+    res.send(false);
+  }
+});
 // エラーハンドラは下に持っていく
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
