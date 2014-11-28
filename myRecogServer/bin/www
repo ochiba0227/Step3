@@ -25,14 +25,20 @@ var server = https.createServer(options,app).listen(app.get('port'), function() 
 var socketIO = require('socket.io');
 // クライアントの接続を待つ(IPアドレスとポート番号を結びつけます)
 var io = socketIO.listen(server);
+var fs = require('fs');
+var logPath = './accesslog.txt';
+
 //cors
 io.set('origins', '*:*');
 // クライアントが接続してきたときの処理
 io.sockets.on('connection', function(socket) {
-  console.log('connected\n'+'IP Addr:'+socket.handshake.address+'\n'+'Time:'+socket.handshake.time+'\n');
+  var logData = 'connected\n'+'IP Addr:'+socket.handshake.address+'\n'+'Time:'+socket.handshake.time+'\n';
+  console.log(logData);
   socket.emit('connected',socket.id);
+  fs.appendFile(logPath, logData , function (err) {
+    if(err) console.log(err);
+  });
   socket.on('upload', function(data) {
-  var fs = require('fs');
   var writeFile = data.file;
   var writePath = './uploads/'+data.name+'.wav';
   var writeStream = fs.createWriteStream(writePath);

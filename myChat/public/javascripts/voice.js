@@ -10,11 +10,14 @@ window.RTCIceCandidate = window.RTCIceCandidate || window.mozRTCIceCandidate;
 // 音声認識用
 var recogID;
 var recogSocket = io.connect('https://aocserver.dip.jp:3000');
+
 //音声認識サーバに接続完了
 recogSocket.on('connected', function(data) {
   recogID=data;
   console.log('connected to recogserver');
   addMessage('音声認識サーバに接続しました．',false);
+  // 接続されたら表示
+  roomName.text(roomName.text()+'(音声認識サーバ接続完了)');
 });
 recogSocket.on('return', function(data) {
   console.log(data);

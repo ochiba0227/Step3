@@ -12,12 +12,14 @@ block content
             a#top-tab(aria-expanded='false', href='#top', role='tab', data-toggle='tab', aria-controls='profile') トップページ
           li(role='presentation')
             a#chatroom-tab(aria-expanded='false', href='#chatroom', role='tab', data-toggle='tab', aria-controls='profile') チャットルーム
+          li(role='presentation')
+            a#adjust-tab(aria-expanded='false', href='#adjust', role='tab', data-toggle='tab', aria-controls='profile') マイクの調整
           li#certli(role='presentation')
             a#cert-tab(aria-expanded='false', href='#cert', role='tab', data-toggle='tab', aria-controls='profile') 証明書情報
         #myTabContent.tab-content
           #home.tab-pane.fade.active.in(role='tabpanel', aria-labelledby='home-tab')
             p
-              | 音声認識を利用したディクテーションチャットサイト．音声のテキスト化には<a href='http://julius.sourceforge.jp/'>大語彙連続音声認識エンジン Julius</a>を使用させていただいています．自宅サーバと連携しているため，メニュー→認証ページへまたは<a href='https://aocserver.dip.jp:3000'>こちら</a>で認証ページへ行きSSL証明書を許可するよう設定してください．証明書情報は<a id='profile-tab',aria-expanded='false', href='#cert', data-toggle='tab', aria-controls='profile', onClick='certActive();'>こちら</a>です．
+              | 音声認識を利用したディクテーションチャットサイト．音声のテキスト化には<a href='http://julius.sourceforge.jp/'>大語彙連続音声認識エンジン Julius</a>を使用させていただいています．はきはき喋るといい感じに認識されます．また，マイクの調整を<a href='/adjust'>こちら</a>で行っていただけるとより良いです．デフォルト状態なので誤認識が多く感じますが，このチャットアプリケーションに最適な音響モデルやパラメータを作成することで認識精度は向上すると考えられます．自宅サーバと連携しているため，メニュー→認証ページへまたは<a href='https://aocserver.dip.jp:3000'>こちら</a>で認証ページへ行きSSL証明書を許可するよう設定してください．証明書情報は<a id='profile-tab',aria-expanded='false', href='#cert', data-toggle='tab', aria-controls='profile', onClick='certActive();'>こちら</a>です．
           #header.tab-pane.fade(role='tabpanel', aria-labelledby='profile-tab')
             p
               img.img-responsive(src='images/headeropen.png' alt='HeaderOpen')
@@ -32,7 +34,7 @@ block content
                     li マイクの調整
                     |クリックするとマイクの調整画面へ遷移します．
                     li 認証ページへ
-                    |クリックするとSSLの認証ページへ遷移します．
+                    |クリックするとSSLの認証ページへ遷移します．認証ページは認証が終わると自動的に一つ前のページへ戻ります．
                     li HELP
                     |クリックするとこのページへ遷移します．
                 li Login
@@ -68,17 +70,28 @@ block content
             p
               | チャットルームの説明．表示例は下にあります．
               ul
-               li 表示部分
-               |テキストチャットの表示部分にはチャットの入力文書や音声の認識結果だけでなくシステムメッセージも表示されます．入室後に"音声認識サーバに接続しました．"と表示されなければ，<a href='https://aocserver.dip.jp:3000'>こちら</a>で認証ページへ行きSSL証明書を許可するよう設定してください．証明書情報は<a id='profile-tab',aria-expanded='false', href='#cert', data-toggle='tab', aria-controls='profile', onClick='certActive();'>こちら</a>です．サーバへアクセスできない場合は，お手数ですがご一報ください．
-               li 音声チャットの開始ボタン
-               |クリックするとWebRTCによるP2Pコネクションを張るように要求します．また，同時に音声認識サーバへアクセスし，ディクテーションを開始します．
-               li 音声チャットの停止ボタン
-               |クリックすると音声チャットを停止し，P2Pコネクションを削除します．また，同時に音声認識も停止します．
-               li メッセージ入力フォーム
-               |メッセージを入力できます．
-               li 送信ボタン
-               |メッセージを送信できます．送信したテキストは最上部に追加されます．
-              img.img-responsive(src='images/chatroom.png' alt='chatroom')
+                li 表示部分
+                |テキストチャットの表示部分にはチャットの入力文書や音声の認識結果だけでなくシステムメッセージも表示されます．入室後に部屋タイトル横に"音声認識サーバ接続完了"と表示されなければ，<a href='https://aocserver.dip.jp:3000'>こちら</a>で認証ページへ行きSSL証明書を許可するよう設定してください．証明書情報は<a id='profile-tab',aria-expanded='false', href='#cert', data-toggle='tab', aria-controls='profile', onClick='certActive();'>こちら</a>です．サーバへアクセスできない場合は，お手数ですがご一報ください．
+                li 音声チャットの開始ボタン
+                |クリックするとWebRTCによるP2Pコネクションを張るように要求します．また，同時に音声認識サーバへアクセスし，ディクテーションを開始します．
+                li 音声チャットの停止ボタン
+                |クリックすると音声チャットを停止し，P2Pコネクションを削除します．また，同時に音声認識も停止します．
+                li メッセージ入力フォーム
+                |メッセージを入力できます．
+                li 送信ボタン
+                |メッセージを送信できます．送信したテキストは最上部に追加されます．
+              img.img-responsive(src='images/chatroom2.png' alt='chatroom')
+          #adjust.tab-pane.fade(role='cert', aria-labelledby='profile-tab')
+            p
+              img.img-responsive(src='images/adjust.png' alt='adjust')
+              | マイク調整(メニュー内)．チャットルームでの音声認識をより正確に行う為に入力音量の閾値を設定します．
+              ul
+               li インジケータ
+               |音量により変化します．ユーザが指定した範囲に音量がある場合に青色，そうでない場合赤色となります．
+               li 閾値操作スライダー
+               |インジケータの下部にある2つのつまみを操作し，閾値を設定します．スマートフォンで移動がうまくいかない場合は一度つまみにタッチしてから動かしたい位置をタッチしてみてください．
+               li 設定を保存ボタン
+               |クリックすると現在設定している範囲を保存し，一つ前のページへ戻ります．
           #cert.tab-pane.fade(role='cert', aria-labelledby='profile-tab')
             p
               | 証明書情報は以下の通りです．

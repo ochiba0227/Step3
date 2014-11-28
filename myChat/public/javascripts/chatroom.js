@@ -15,7 +15,6 @@ function loaded() {
   roomName.text(localStorage['roomName']);
   currentRoom = localStorage['roomID'];
   timeLine.value='';
-  addMessage('貴方は' + myName + 'として入室しました',false);
   //タイムラインの大きさを画面の70%と指定
   var windowY = window.innerHeight ? window.innerHeight: $(window).height();
   $('#timeline').height(windowY*0.7);
@@ -31,6 +30,7 @@ function loaded() {
         addMessage (new Date(res[i].date).toLocaleTimeString() + ' ' + '[' + res[i].userName + '] ' + res[i].logText + '\n', true);
       }
     }
+    addMessage('貴方は' + myName + 'として入室しました',false);
   });
   startVoiceChatBtn = $('#startVoiceChatBtn');
   startVoiceChatBtn.removeAttr('disabled');
